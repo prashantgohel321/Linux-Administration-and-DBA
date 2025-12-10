@@ -1,6 +1,6 @@
 # promote-dc-server2022.md
 
-- In this file I am promoting Windows Server 2022 to a Domain Controller. Before doing this, I must already have a clean Windows Server installation, correct networking, a static IP address, and a hostname chosen. Promoting a server to a Domain Controller is a critical step because it creates the Active Directory Domain Services environment, configures DNS, and establishes the identity infrastructure for the entire network.
+- In this file I am promoting Windows Server 2022 to a Domain Controller. Before doing this, I must already have a clean Windows Server installation, correct networking, a static IP address, and a hostname chosen. Promoting a server to a Domain Controller is a critical step because it creates the AD Domain Services environment, configures DNS, and establishes the identity infrastructure for the entire network.
 
 ---
 
@@ -25,7 +25,7 @@
 
 ## Understanding What It Means to Promote a Domain Controller
 
-- Promoting a server to a Domain Controller means <mark><b>installing the Active Directory Domain Services role</b></mark> and configuring the server to host the directory database. Once promoted, the server becomes responsible for authentication, directory operations, Kerberos services, and DNS integration.
+- Promoting a server to a Domain Controller means <mark><b>installing the AD Domain Services role</b></mark> and configuring the server to host the directory database. Once promoted, the server becomes responsible for authentication, directory operations, Kerberos services, and DNS integration.
 
 - A Domain Controller is not simply a Windows server with a role installed. It becomes the security authority for the domain. Every authentication request, user login, and computer join depends on the Domain Controller being available and functioning correctly.
 
@@ -68,7 +68,7 @@ At this stage, I temporarily set the Preferred DNS to the server’s own IP addr
 
 ## Installing the AD DS Role
 
-- Open Server Manager and select "Add roles and features". I choose Active Directory Domain Services. This installs the necessary components but does not yet make the server a Domain Controller. The promotion happens after the installation, using a separate configuration wizard.
+- Open Server Manager and select "Add roles and features". I choose AD Domain Services. This installs the necessary components but does not yet make the server a Domain Controller. The promotion happens after the installation, using a separate configuration wizard.
 
 - When the installation finishes, a notification appears asking to promote the server to a Domain Controller.
 
@@ -85,7 +85,7 @@ At this stage, I temporarily set the Preferred DNS to the server’s own IP addr
 gohel.local
 ```
 
-- This name becomes the Active Directory domain name and DNS namespace. Selecting this name requires careful thought because renaming a domain later is difficult and not recommended.
+- This name becomes the AD domain name and DNS namespace. Selecting this name requires careful thought because renaming a domain later is difficult and not recommended.
 
 ---
 
@@ -103,7 +103,7 @@ gohel.local
 
 ## DNS Installation
 
-- The wizard asks whether to install DNS. In almost all cases, I install DNS on the Domain Controller because Active Directory depends on it. DNS service records are automatically created and updated by Active Directory when DNS runs locally.
+- The wizard asks whether to install DNS. In almost all cases, I install DNS on the Domain Controller because AD depends on it. DNS service records are automatically created and updated by AD when DNS runs locally.
 
 - Installing DNS here ensures that clients and domain-joined machines can locate services without relying on external DNS servers that are unaware of internal domain records.
 
@@ -167,7 +167,7 @@ The format depends on whether I use NetBIOS or UPN style.
 ## Verification After Promotion
 
 After logging in, I check:
-- Server Manager shows Active Directory Domain Services installed.
+- Server Manager shows AD Domain Services installed.
 - DNS Manager shows the domain DNS zone created.
 - Event Viewer shows no major errors.
 
@@ -180,4 +180,4 @@ These steps confirm that the Domain Controller is functioning and ready.
 
 ## What I Achieve After This File
 
-- By the end of this promotion, I have a fully functional Domain Controller with Active Directory Domain Services and DNS installed. This server is now the central authentication authority for the network. Linux systems will rely on this Domain Controller for Kerberos authentication and domain integration in future steps.
+- By the end of this promotion, I have a fully functional Domain Controller with AD Domain Services and DNS installed. This server is now the central authentication authority for the network. Linux systems will rely on this Domain Controller for Kerberos authentication and domain integration in future steps.

@@ -1,12 +1,12 @@
 # create-test-users.md
 
-- In this file I am creating test users inside Active Directory after the domain controller is fully operational. Creating test users helps verify that authentication, DNS, and domain services are functioning correctly. These accounts will also be used later when I join Linux to the domain and test login scenarios.
+- In this file I am creating test users inside AD after the domain controller is fully operational. Creating test users helps verify that authentication, DNS, and domain services are functioning correctly. These accounts will also be used later when I join Linux to the domain and test login scenarios.
 
 ---
 
 - [create-test-users.md](#create-test-usersmd)
   - [Why Create Test Users](#why-create-test-users)
-  - [Using Active Directory Users and Computers](#using-active-directory-users-and-computers)
+  - [Using AD Users and Computers](#using-ad-users-and-computers)
   - [Choosing Where to Create Users](#choosing-where-to-create-users)
   - [Creating a New OU](#creating-a-new-ou)
   - [Creating a Test User](#creating-a-test-user)
@@ -23,7 +23,7 @@
 
 ## Why Create Test Users
 
-- Active Directory is designed to manage users and their access. Before joining other machines to the domain, I need at least a few accounts to test authentication, group membership, and basic login behaviour. Creating test accounts ensures that the directory is working and that Active Directory is storing and handling identity information properly.
+- AD is designed to manage users and their access. Before joining other machines to the domain, I need at least a few accounts to test authentication, group membership, and basic login behaviour. Creating test accounts ensures that the directory is working and that AD is storing and handling identity information properly.
 
 - Test users allow me to validate:
   - password authentication
@@ -37,9 +37,9 @@
 <br>
 <br>
 
-## Using Active Directory Users and Computers
+## Using AD Users and Computers
 
-- To create test users, I open the tool called Active Directory Users and Computers (ADUC). This tool allows me to view and manage directory objects. ADUC is installed automatically when I promote the server to a Domain Controller.
+- To create test users, I open the tool called AD Users and Computers (ADUC). This tool allows me to view and manage directory objects. ADUC is installed automatically when I promote the server to a Domain Controller.
 
 - I navigate through the Start menu or Server Manager to open ADUC. Once open, I can browse the domain and its default containers.
 
@@ -50,7 +50,7 @@
 
 ## Choosing Where to Create Users
 
-- Active Directory places new objects into default containers such as Users or Computers. However, best practice is to create a dedicated Organizational Unit (OU) for users instead of using the default Users container. This gives better organisation and prepares for applying group policies to users later.
+- AD places new objects into default containers such as Users or Computers. However, best practice is to create a dedicated Organizational Unit (OU) for users instead of using the default Users container. This gives better organisation and prepares for applying group policies to users later.
 
 - I can create a new OU called "TestUsers". This OU will hold the accounts that I am creating for testing.
 
@@ -88,7 +88,7 @@ User logon name: testuser1
 
 ## Password Settings
 
-- By default, Active Directory enforces password policies. When creating a new user, I must enter a password that meets the policy requirements. I also choose whether the user must change the password at next logon. For a test account, I usually allow the account to use a defined password and not require immediate change, as this simplifies testing.
+- By default, AD enforces password policies. When creating a new user, I must enter a password that meets the policy requirements. I also choose whether the user must change the password at next logon. For a test account, I usually allow the account to use a defined password and not require immediate change, as this simplifies testing.
 
 ---
 
@@ -142,7 +142,7 @@ Each can be used to test different group assignments.
 
 ## Why I Need Test Accounts Before Joining Linux
 
-- Linux integration depends on verifying that Active Directory authentication works. If I cannot authenticate a test user inside a Windows environment, Linux domain joining will also fail. By verifying domain accounts first, I remove unnecessary troubleshooting steps later.
+- Linux integration depends on verifying that AD authentication works. If I cannot authenticate a test user inside a Windows environment, Linux domain joining will also fail. By verifying domain accounts first, I remove unnecessary troubleshooting steps later.
 
 ---
 

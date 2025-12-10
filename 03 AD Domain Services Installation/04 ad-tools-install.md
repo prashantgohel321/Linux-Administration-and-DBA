@@ -1,13 +1,13 @@
 # ad-tools-install.md
 
-- In this file I am installing the administrative tools that allow me to manage Active Directory after the Domain Controller promotion. When Windows Server is promoted to a Domain Controller, many tools are installed automatically, but some tools need to be confirmed or added explicitly depending on the configuration. Understanding which tools exist and what they do helps me manage users, groups, computers, DNS, and Group Policy effectively.
+- In this file I am installing the administrative tools that allow me to manage AD after the Domain Controller promotion. When Windows Server is promoted to a Domain Controller, many tools are installed automatically, but some tools need to be confirmed or added explicitly depending on the configuration. Understanding which tools exist and what they do helps me manage users, groups, computers, DNS, and Group Policy effectively.
 
 ---
 
 - [ad-tools-install.md](#ad-tools-installmd)
   - [What Administrative Tools Are](#what-administrative-tools-are)
-  - [Active Directory Users and Computers (ADUC)](#active-directory-users-and-computers-aduc)
-  - [Active Directory Administrative Center](#active-directory-administrative-center)
+  - [AD Users and Computers (ADUC)](#ad-users-and-computers-aduc)
+  - [AD Administrative Center](#ad-administrative-center)
   - [DNS Manager](#dns-manager)
   - [Group Policy Management Console (GPMC)](#group-policy-management-console-gpmc)
   - [Server Manager](#server-manager)
@@ -22,7 +22,7 @@
 
 ## What Administrative Tools Are
 
-- Administrative tools are applications and management consoles that allow me to work with Active Directory. These tools provide graphical interfaces or consoles for viewing directory objects, changing configuration, applying policies, managing DNS, and performing other essential tasks. Without these tools, I would be limited to command-line operations, which is possible but not ideal when learning.
+- Administrative tools are applications and management consoles that allow me to work with AD. These tools provide graphical interfaces or consoles for viewing directory objects, changing configuration, applying policies, managing DNS, and performing other essential tasks. Without these tools, I would be limited to command-line operations, which is possible but not ideal when learning.
 
 - Administrative tools are installed through Windows Server features and include a collection of snap-ins, consoles, and utilities. When I install these tools on a Domain Controller, they are used locally on that server. They can also be installed on remote systems in enterprise environments.
 
@@ -31,9 +31,9 @@
 <br>
 <br>
 
-## Active Directory Users and Computers (ADUC)
+## AD Users and Computers (ADUC)
 
-- Active Directory Users and Computers is the main tool for viewing and managing directory objects such as users, groups, and computers. I use ADUC to create new users, move accounts between OUs, reset passwords, and manage group membership.
+- AD Users and Computers is the main tool for viewing and managing directory objects such as users, groups, and computers. I use ADUC to create new users, move accounts between OUs, reset passwords, and manage group membership.
 
 - ADUC is installed automatically on a Domain Controller, but I still verify that it exists in the Start menu under Windows Administrative Tools.
 
@@ -42,9 +42,9 @@
 <br>
 <br>
 
-## Active Directory Administrative Center
+## AD Administrative Center
 
-- Active Directory Administrative Center provides a modern interface for managing users and groups. It uses a friendlier layout and offers additional features such as fine-grained password policy management. While ADUC remains widely used, the Administrative Center is useful for more advanced management scenarios.
+- AD Administrative Center provides a modern interface for managing users and groups. It uses a friendlier layout and offers additional features such as fine-grained password policy management. While ADUC remains widely used, the Administrative Center is useful for more advanced management scenarios.
 
 - This tool is also installed automatically on a Domain Controller.
 
@@ -57,7 +57,7 @@
 
 - DNS Manager is the tool used to manage DNS zones, records, and server configuration. After promoting the Domain Controller and installing DNS, I use DNS Manager to verify that the correct forward and reverse lookup zones exist and that SRV records are present.
 
-- DNS Manager lets me view and modify DNS records manually, although Active Directory usually maintains the required records automatically.
+- DNS Manager lets me view and modify DNS records manually, although AD usually maintains the required records automatically.
 
 ---
 
@@ -81,7 +81,7 @@
 
 - Server Manager is a tool that helps manage server roles, features, and hardware resources. It provides a central place for viewing installed roles, checking status, and opening management tools.
 
-- While Server Manager is not Active Directory specific, it plays a major role in installing and managing AD DS and DNS roles.
+- While Server Manager is not AD specific, it plays a major role in installing and managing AD DS and DNS roles.
 
 ---
 
@@ -90,7 +90,7 @@
 
 ## Windows PowerShell Modules
 
-- Active Directory includes PowerShell modules that provide command-line and scripting capabilities. Many tasks can be automated or performed using PowerShell commands. Even though I am using graphical tools, knowing that the PowerShell module exists is important because automation and scripting are common in real environments.
+- AD includes PowerShell modules that provide command-line and scripting capabilities. Many tasks can be automated or performed using PowerShell commands. Even though I am using graphical tools, knowing that the PowerShell module exists is important because automation and scripting are common in real environments.
 
 ---
 
@@ -111,8 +111,8 @@
 ## Verifying Installation
 
 - After installation, I check the Windows Administrative Tools folder. I should see entries such as:
-  - Active Directory Users and Computers
-  - Active Directory Administrative Center
+  - AD Users and Computers
+  - AD Administrative Center
   - DNS
   - Group Policy Management
 

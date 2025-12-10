@@ -1,11 +1,11 @@
 # dns-forwards-reverse-zones.md
 
-- In this file I am configuring <mark><b>forward and reverse DNS zones</b></mark> on the newly promoted Domain Controller. Active Directory depends on DNS to locate domain controllers and services. Although the promotion wizard already created the basic forward zone, I need to understand how it works, why reverse lookup zones matter, and how DNS actually resolves names and IPs inside an Active Directory environment.
+- In this file I am configuring <mark><b>forward and reverse DNS zones</b></mark> on the newly promoted Domain Controller. AD depends on DNS to locate domain controllers and services. Although the promotion wizard already created the basic forward zone, I need to understand how it works, why reverse lookup zones matter, and how DNS actually resolves names and IPs inside an AD environment.
 
 ---
 
 - [dns-forwards-reverse-zones.md](#dns-forwards-reverse-zonesmd)
-  - [Why DNS Zones Exist in Active Directory](#why-dns-zones-exist-in-active-directory)
+  - [Why DNS Zones Exist in AD](#why-dns-zones-exist-in-ad)
   - [Forward Lookup Zones](#forward-lookup-zones)
   - [Reverse Lookup Zones](#reverse-lookup-zones)
   - [How Reverse Zones Are Named](#how-reverse-zones-are-named)
@@ -20,11 +20,11 @@
 <br>
 <br>
 
-## Why DNS Zones Exist in Active Directory
+## Why DNS Zones Exist in AD
 
 - A DNS zone is a section of the DNS namespace that a DNS server is responsible for. When I create a domain such as `gohel.local`, the Domain Controller becomes the authoritative DNS server for that zone. This means it holds the DNS records that define how names inside that domain resolve to IP addresses.
 
-- Active Directory integrates tightly with DNS, so domain controllers automatically register service records, host records, and locator records. Without a working zone, none of this would function.
+- AD integrates tightly with DNS, so domain controllers automatically register service records, host records, and locator records. Without a working zone, none of this would function.
 
 ---
 
@@ -44,7 +44,7 @@
 
 ## Reverse Lookup Zones
 
-- A reverse lookup zone does the opposite of a forward zone. It resolves IP addresses back to host names. Reverse DNS is not required for Active Directory authentication, but it provides useful functionality and improves troubleshooting.
+- A reverse lookup zone does the opposite of a forward zone. It resolves IP addresses back to host names. Reverse DNS is not required for AD authentication, but it provides useful functionality and improves troubleshooting.
 
 - When diagnosing network problems, reverse lookups help confirm that the DNS server understands both the host name and the IP address. Some services also rely on reverse lookups for logging or validation. Having a reverse zone makes the environment more complete.
 
@@ -81,9 +81,9 @@
 
 ## Dynamic Updates
 
-- Active Directory uses dynamic DNS updates to create and update DNS records automatically. When the Domain Controller starts, it registers its service records. When a client joins the domain, it registers forward and sometimes reverse records if permissions allow.
+- AD uses dynamic DNS updates to create and update DNS records automatically. When the Domain Controller starts, it registers its service records. When a client joins the domain, it registers forward and sometimes reverse records if permissions allow.
 
-- Dynamic updates mean I do not need to manually create most DNS records. The DNS server and Active Directory work together to keep the zone up to date.
+- Dynamic updates mean I do not need to manually create most DNS records. The DNS server and AD work together to keep the zone up to date.
 
 ---
 
@@ -113,7 +113,7 @@ ping dc01.gohel.local
 ping -a <ip-address>
 ```
 
-- If the reverse zone is configured correctly, the response displays the hostname. If it only shows the IP address, the reverse lookup is not working. This does not break Active Directory, but fixing it improves diagnostics.
+- If the reverse zone is configured correctly, the response displays the hostname. If it only shows the IP address, the reverse lookup is not working. This does not break AD, but fixing it improves diagnostics.
 
 ---
 
@@ -133,4 +133,4 @@ ping -a <ip-address>
 
 ## What I Achieve After This File
 
-- By configuring forward and reverse lookup zones, I ensure that Active Directory has complete DNS functionality. The forward zone handles name resolution required for authentication, while the reverse zone improves diagnostics and keeps DNS information consistent. This prepares the environment for Linux domain integration, Kerberos authentication, and future troubleshooting.
+- By configuring forward and reverse lookup zones, I ensure that AD has complete DNS functionality. The forward zone handles name resolution required for authentication, while the reverse zone improves diagnostics and keeps DNS information consistent. This prepares the environment for Linux domain integration, Kerberos authentication, and future troubleshooting.
