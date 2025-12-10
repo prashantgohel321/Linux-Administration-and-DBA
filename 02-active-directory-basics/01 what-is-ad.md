@@ -24,6 +24,8 @@
 
 - Active Directory runs on Windows Server and one or more servers host the directory database. When a user logs in to a computer joined to an Active Directory domain, the computer contacts the domain controller in order to authenticate the user and verify permissions.
 
+![alt text](<../Diagrams/02_01_00 AD.png>)
+
 ---
 
 <br>
@@ -69,6 +71,8 @@
 - A <mark><b>domain controller</b></mark> is a server that holds <u><b>a copy of the directory database and handles authentication requests.</b></u> When a user logs in, the domain controller verifies the identity and provides authorisation information.
 
 - Multiple domain controllers can exist in the same domain. They replicate the database to each other to provide redundancy and availability.
+
+![alt text](<../Diagrams/02_01_01 DC.png>)
 
 ---
 
