@@ -1,19 +1,48 @@
 # SSSD-caching.md
 
-In this file I am focusing only on how SSSD caching works, why it exists, how to inspect it, how to clear it, and how caching affects authentication. Caching causes many confusing situations during troubleshooting because an issue might appear fixed in AD but Linux still behaves based on old cached information. So I need a practical, command-based understanding.
+- In this file I am focusing only on how <mark><b>SSSD caching</b></mark> works, why it exists, how to inspect it, how to clear it, and how caching affects authentication. Caching causes many confusing situations during troubleshooting because an issue might appear fixed in AD but Linux still behaves based on old cached information. So I need a practical, command-based understanding.
 
 ---
+
+- [SSSD-caching.md](#sssd-cachingmd)
+  - [Why SSSD caches data](#why-sssd-caches-data)
+  - [What gets cached](#what-gets-cached)
+  - [Where SSSD cache lives](#where-sssd-cache-lives)
+  - [Cache timeouts](#cache-timeouts)
+  - [cache\_credentials](#cache_credentials)
+  - [Checking cached information](#checking-cached-information)
+    - [List cached users](#list-cached-users)
+    - [Show details about a user](#show-details-about-a-user)
+  - [Clearing SSSD cache](#clearing-sssd-cache)
+  - [Example: user removed from AD](#example-user-removed-from-ad)
+  - [Example: group membership updated in AD](#example-group-membership-updated-in-ad)
+  - [Offline login scenario](#offline-login-scenario)
+  - [Logs related to caching](#logs-related-to-caching)
+  - [Testing caching behavior in practice](#testing-caching-behavior-in-practice)
+  - [What can go wrong](#what-can-go-wrong)
+    - [Stale cache](#stale-cache)
+    - [Offline login fails](#offline-login-fails)
+    - [Authentication succeeds but groups outdated](#authentication-succeeds-but-groups-outdated)
+  - [Recommended troubleshooting workflow](#recommended-troubleshooting-workflow)
+  - [What I achieve after this file](#what-i-achieve-after-this-file)
+
+
+<br>
+<br>
 
 ## Why SSSD caches data
 
 SSSD caches user and group information and sometimes credentials. It does this for two main reasons:
 
 1. Performance. Querying AD repeatedly would slow down login and system commands like `id`.
-2. Offline logins. If the Domain Controller becomes unreachable, users can still log in if they logged in recently.
+2. Offline logins. If the DC becomes unreachable, users can still log in if they logged in recently.
 
 Caching is a core feature, not a side effect.
 
 ---
+
+<br>
+<br>
 
 ## What gets cached
 
@@ -26,10 +55,13 @@ This means that even if AD changes, Linux might still show the old values until 
 
 ---
 
+<br>
+<br>
+
 ## Where SSSD cache lives
 
 Cache files live in:
-```
+```bash
 /var/lib/sss/db/
 ```
 
@@ -37,10 +69,13 @@ These files are binary and should not be edited manually.
 
 ---
 
+<br>
+<br>
+
 ## Cache timeouts
 
 Cache expiration is controlled by domain section options in `sssd.conf`:
-```
+```bash
 entry_cache_timeout = 5400
 ```
 
@@ -48,9 +83,12 @@ This value is in seconds (5400 = 1.5 hours). After this time, SSSD refreshes its
 
 ---
 
+<br>
+<br>
+
 ## cache_credentials
 
-```
+```bash
 cache_credentials = true
 ```
 
@@ -60,17 +98,20 @@ For realistic enterprise setups, this is normally enabled.
 
 ---
 
+<br>
+<br>
+
 ## Checking cached information
 
 The `sssctl` tool lets me inspect cached entries.
 
 ### List cached users
-```
+```bash
 sssctl cache-status
 ```
 
 ### Show details about a user
-```
+```bash
 sssctl user-show testuser1
 ```
 
@@ -78,23 +119,29 @@ This can show cached information even if AD is unreachable.
 
 ---
 
+<br>
+<br>
+
 ## Clearing SSSD cache
 
 When troubleshooting, clearing cache is often necessary. If AD changed group membership or password and Linux still shows old information, I clear cache.
 
 Clear all caches:
-```
+```bash
 sssctl cache-remove -o
 ```
 
 Then restart SSSD:
-```
+```bash
 systemctl restart sssd
 ```
 
 This forces SSSD to query AD again.
 
 ---
+
+<br>
+<br>
 
 ## Example: user removed from AD
 
@@ -104,16 +151,22 @@ This is expected behavior when `cache_credentials = true`.
 
 ---
 
+<br>
+<br>
+
 ## Example: group membership updated in AD
 
 If I add a user to a group in AD, Linux may not show the change immediately:
-```
+```bash
 id testuser1
 ```
 
 Still shows old groups until cache refresh. Clearing cache forces immediate update.
 
 ---
+
+<br>
+<br>
 
 ## Offline login scenario
 
@@ -125,10 +178,13 @@ So:
 
 ---
 
+<br>
+<br>
+
 ## Logs related to caching
 
 SSSD logs contain messages about caching in:
-```
+```bash
 /var/log/sssd/sssd_cache.log
 ```
 
@@ -137,6 +193,9 @@ Also relevant messages appear in:
 - `sssd_pam.log`
 
 ---
+
+<br>
+<br>
 
 ## Testing caching behavior in practice
 
@@ -147,6 +206,9 @@ Also relevant messages appear in:
 If successful, caching is working. If not, either caching disabled or SSSD misconfigured.
 
 ---
+
+<br>
+<br>
 
 ## What can go wrong
 
@@ -162,18 +224,24 @@ Cache needs refresh.
 
 ---
 
+<br>
+<br>
+
 ## Recommended troubleshooting workflow
 
 1. `sssctl user-show <user>`
 2. `getent passwd <user>`
 3. clear cache
-```
+```bash
 sssctl cache-remove -o
 systemctl restart sssd
 ```
 4. test again
 
 ---
+
+<br>
+<br>
 
 ## What I achieve after this file
 

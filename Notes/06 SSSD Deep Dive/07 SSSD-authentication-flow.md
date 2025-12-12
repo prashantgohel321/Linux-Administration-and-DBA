@@ -1,12 +1,33 @@
 # SSSD-authentication-flow.md
 
-In this file I am explaining the actual authentication flow that happens when a user logs in on Linux after joining Active Directory. I want a clear, step-by-step, practical description of what each component does from the moment a username and password is entered until Linux decides to grant or deny access. I also want to know where to check when something breaks.
+- Explanation of the actual authentication flow that happens when a user logs in on Linux after joining Active Directory. I want a clear, step-by-step, practical description of what each component does from the moment a username and password is entered until Linux decides to grant or deny access. I also want to know where to check when something breaks.
 
 ---
 
+- [SSSD-authentication-flow.md](#sssd-authentication-flowmd)
+  - [The starting point: a login attempt](#the-starting-point-a-login-attempt)
+  - [Step-by-step flow](#step-by-step-flow)
+    - [Step 1: SSHD hands off to PAM](#step-1-sshd-hands-off-to-pam)
+    - [Step 2: PAM processes modules in system-auth](#step-2-pam-processes-modules-in-system-auth)
+    - [Step 3: pam\_sss talks to SSSD](#step-3-pam_sss-talks-to-sssd)
+    - [Step 4: SSSD checks cache first](#step-4-sssd-checks-cache-first)
+    - [Step 5: SSSD sends authentication request to AD](#step-5-sssd-sends-authentication-request-to-ad)
+    - [Step 6: SSSD retrieves identity from AD (LDAP)](#step-6-sssd-retrieves-identity-from-ad-ldap)
+    - [Step 7: Access control phase](#step-7-access-control-phase)
+    - [Step 8: Session phase](#step-8-session-phase)
+  - [How to trace each stage in practice](#how-to-trace-each-stage-in-practice)
+  - [Decision points](#decision-points)
+  - [Offline authentication path](#offline-authentication-path)
+  - [Complete end-to-end test](#complete-end-to-end-test)
+  - [What I achieve after this file](#what-i-achieve-after-this-file)
+
+
+<br>
+<br>
+
 ## The starting point: a login attempt
 
-A user tries to log in using SSH, console login, su, or any PAM-based method. The components involved are:
+A user tries to log in using SSH, console login, `su`, or any PAM-based method. The components involved are:
 1. SSHD (or login, or su)
 2. PAM
 3. pam_sss.so
@@ -16,17 +37,20 @@ A user tries to log in using SSH, console login, su, or any PAM-based method. Th
 
 ---
 
+<br>
+<br>
+
 ## Step-by-step flow
 
 ### Step 1: SSHD hands off to PAM
 
 When a user logs in via SSH, sshd does not authenticate by itself. Instead, sshd calls PAM using the PAM configuration in:
-```
+```bash
 /etc/pam.d/sshd
 ```
 
 This file includes the stack defined in:
-```
+```bash
 /etc/pam.d/system-auth
 ```
 
@@ -37,7 +61,7 @@ So ultimately, system-auth controls everything.
 ### Step 2: PAM processes modules in system-auth
 
 system-auth lists modules in order. Typically:
-```
+```bash
 auth required pam_env.so
 auth sufficient pam_unix.so
 auth sufficient pam_sss.so
@@ -106,39 +130,45 @@ If authentication succeeds, PAM enters the session phase. This is where:
 
 ---
 
+<br>
+<br>
+
 ## How to trace each stage in practice
 
 When troubleshooting a login failure, I check these in order:
 
 1. SSHD logs
-```
+```bash
 tail -f /var/log/secure
 ```
 
 2. PAM logs (in secure)
 
 3. SSSD logs (especially sssd_pam.log)
-```
+```bash
 tail -f /var/log/sssd/sssd_pam.log
 ```
 
 4. Kerberos test
-```
+```bash
 kinit testuser1
 klist
 ```
 
 5. Identity test
-```
+```bash
 id testuser1
 ```
 
 6. getent test
-```
+```bash
 getent passwd testuser1
 ```
 
 ---
+
+<br>
+<br>
 
 ## Decision points
 
@@ -151,6 +181,9 @@ Understanding these forks makes troubleshooting fast.
 
 ---
 
+<br>
+<br>
+
 ## Offline authentication path
 
 If DC is unreachable and cache_credentials=true:
@@ -161,6 +194,9 @@ If DC is unreachable and cache_credentials=true:
 If user never logged in before, offline login fails.
 
 ---
+
+<br>
+<br>
 
 ## Complete end-to-end test
 
@@ -174,6 +210,9 @@ Each step validates a different layer.
 
 ---
 
+<br>
+<br>
+
 ## What I achieve after this file
 
-I have a complete picture of what actually happens during authentication flows from SSHD to PAM to SSSD to AD and back. I know where to check when something fails and how to trace each step real-time using logs and commands. This gives me real control over troubleshooting AD authentication on Linux.
+- I have a complete picture of what actually happens during authentication flows from SSHD to PAM to SSSD to AD and back. I know where to check when something fails and how to trace each step real-time using logs and commands. This gives me real control over troubleshooting AD authentication on Linux.
