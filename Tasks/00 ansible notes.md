@@ -1,16 +1,42 @@
-# Ansible – Practical Enterprise Notes (Real‑World Focus)
+# Ansible – Practical Notes (Real‑World Focus)
 
-This repository contains my **hands‑on Ansible notes**, written from a real operations and enterprise perspective. These are not copied definitions or certification-style notes. Everything here is based on how Ansible is actually used to manage Linux servers at scale, especially in environments integrated with **Active Directory, SSSD, PAM, and role‑based access**.
-
-The goal of this repository is simple: if I give this repo to another Linux or DevOps engineer, they should be able to **understand the problem, reproduce the setup, and run it in a real environment**.
+- This file contains my **hands‑on Ansible notes**, written from a real operations and enterprise perspective. These are not copied definitions or certification-style notes. Everything here is based on how Ansible is actually used to manage Linux servers at scale, especially in environments integrated with **Active Directory, SSSD, PAM, and role‑based access**.
 
 ---
 
+- [Ansible – Practical Notes (Real‑World Focus)](#ansible--practical-notes-realworld-focus)
+  - [What This filesitory Covers](#what-this-filesitory-covers)
+  - [Ansible Architecture (Practical View)](#ansible-architecture-practical-view)
+  - [Control Node Setup](#control-node-setup)
+    - [Installing Ansible (Ubuntu Example)](#installing-ansible-ubuntu-example)
+  - [SSH Key‑Based Authentication (Mandatory)](#ssh-keybased-authentication-mandatory)
+    - [Generate SSH Key on Control Node](#generate-ssh-key-on-control-node)
+    - [Copy Public Key to Target Servers](#copy-public-key-to-target-servers)
+  - [Inventory File (Custom and Practical)](#inventory-file-custom-and-practical)
+    - [Example: inventory.ini](#example-inventoryini)
+  - [Bootstrapping Python on Fresh Servers](#bootstrapping-python-on-fresh-servers)
+  - [Ad‑Hoc Commands (Daily Operations)](#adhoc-commands-daily-operations)
+  - [Playbooks (Repeatable Automation)](#playbooks-repeatable-automation)
+    - [Basic Playbook Example](#basic-playbook-example)
+  - [Installing and Managing Nginx](#installing-and-managing-nginx)
+    - [install-nginx.yml](#install-nginxyml)
+  - [Deploying Static Website](#deploying-static-website)
+  - [Enterprise Scenario: AD + SSSD + PAM](#enterprise-scenario-ad--sssd--pam)
+  - [Creating Custom authselect Profile](#creating-custom-authselect-profile)
+  - [Replacing sssd.conf Using Ansible](#replacing-sssdconf-using-ansible)
+  - [Managing sudo Access via AD Groups](#managing-sudo-access-via-ad-groups)
+    - [Example: sudoers file](#example-sudoers-file)
+    - [Deploy Using Ansible](#deploy-using-ansible)
+  - [Why This Approach Works in Enterprises](#why-this-approach-works-in-enterprises)
+  - [Final Note](#final-note)
 
 
-## What This Repository Covers
+<br>
+<br>
 
-This repo focuses on using Ansible as a **post‑provisioning automation tool**. Infrastructure is assumed to already exist. Ansible is used to standardize, secure, and manage servers.
+## What This filesitory Covers
+
+- This file focuses on using Ansible as a **post‑provisioning automation tool**. Infrastructure is assumed to already exist. Ansible is used to standardize, secure, and manage servers.
 
 It covers:
 
@@ -26,11 +52,14 @@ It covers:
 
 ---
 
+<br>
+<br>
+
 ## Ansible Architecture (Practical View)
 
-Ansible works on a **push‑based model**.
+- Ansible works on a **push‑based model**.
 
-There is one machine where Ansible is installed. This is called the **control node**. From this machine, Ansible connects to all other servers using SSH and pushes configuration changes.
+- There is one machine where Ansible is installed. This is called the **control node**. From this machine, Ansible connects to all other servers using <mark><b>SSH</b></mark> and pushes configuration changes.
 
 The target servers:
 
@@ -41,6 +70,9 @@ The target servers:
 This design keeps Ansible simple and easy to adopt in enterprises.
 
 ---
+
+<br>
+<br>
 
 ## Control Node Setup
 
@@ -57,7 +89,7 @@ Ansible is written in Python, so it is installed using OS package managers.
 ```bash
 sudo apt update
 sudo apt install software-properties-common -y
-sudo add-apt-repository --yes --update ppa:ansible/ansible
+sudo add-apt-filesitory --yes --update ppa:ansible/ansible
 sudo apt install ansible -y
 ```
 
@@ -68,6 +100,9 @@ ansible --version
 ```
 
 ---
+
+<br>
+<br>
 
 ## SSH Key‑Based Authentication (Mandatory)
 
@@ -94,11 +129,14 @@ After this, the control node can connect to servers without passwords.
 
 ---
 
+<br>
+<br>
+
 ## Inventory File (Custom and Practical)
 
 The inventory tells Ansible **which servers exist and how to connect to them**.
 
-Instead of using `/etc/ansible/hosts`, this repo uses a custom inventory file.
+Instead of using `/etc/ansible/hosts`, this file uses a custom inventory file.
 
 ### Example: inventory.ini
 
@@ -123,11 +161,14 @@ This approach allows grouping servers by **role or department**, which is critic
 
 ---
 
+<br>
+<br>
+
 ## Bootstrapping Python on Fresh Servers
 
 Some minimal servers do not have Python installed. Ansible cannot run modules without Python.
 
-Ansible solves this using a raw SSH command.
+Ansible solves this using a <mark><b>raw</b></mark> SSH command.
 
 ```bash
 ansible all_servers -m raw -a "apt install -y python3"
@@ -136,6 +177,9 @@ ansible all_servers -m raw -a "apt install -y python3"
 The `raw` module runs pure SSH commands and does not require Python.
 
 ---
+
+<br>
+<br>
 
 ## Ad‑Hoc Commands (Daily Operations)
 
@@ -165,6 +209,9 @@ These commands replace logging into servers one by one.
 
 ---
 
+<br>
+<br>
+
 ## Playbooks (Repeatable Automation)
 
 Playbooks are YAML files that define **desired state**.
@@ -186,6 +233,9 @@ ansible-playbook playbook.yml
 ```
 
 ---
+
+<br>
+<br>
 
 ## Installing and Managing Nginx
 
@@ -212,6 +262,9 @@ This ensures nginx is installed, running, and enabled on boot.
 
 ---
 
+<br>
+<br>
+
 ## Deploying Static Website
 
 ```yaml
@@ -229,6 +282,9 @@ Re-running this playbook is safe and idempotent.
 
 ---
 
+<br>
+<br>
+
 ## Enterprise Scenario: AD + SSSD + PAM
 
 In enterprise Linux environments, authentication is handled using **Active Directory**.
@@ -240,6 +296,9 @@ Ansible is used to:
 * control sudo access via AD groups
 
 ---
+
+<br>
+<br>
 
 ## Creating Custom authselect Profile
 
@@ -259,9 +318,12 @@ authselect select custom/ad-custom --force
 
 ---
 
+<br>
+<br>
+
 ## Replacing sssd.conf Using Ansible
 
-A standard `sssd.conf` is maintained in the repo.
+A standard `sssd.conf` is maintained in the file.
 
 ```yaml
 - name: Deploy sssd configuration
@@ -285,6 +347,9 @@ A standard `sssd.conf` is maintained in the repo.
 This guarantees **every server uses the same AD configuration**.
 
 ---
+
+<br>
+<br>
 
 ## Managing sudo Access via AD Groups
 
@@ -315,6 +380,9 @@ Now access is controlled centrally via AD group membership.
 
 ---
 
+<br>
+<br>
+
 ## Why This Approach Works in Enterprises
 
 This setup:
@@ -329,9 +397,12 @@ If a server breaks, I do not debug manually. I **re-run the playbooks**.
 
 ---
 
+<br>
+<br>
+
 ## Final Note
 
-This repository is built with one mindset:
+This filesitory is built with one mindset:
 
 > If I repeat the same command on multiple servers, it must be automated.
 
