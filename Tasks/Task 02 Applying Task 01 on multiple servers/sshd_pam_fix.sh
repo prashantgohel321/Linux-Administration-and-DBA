@@ -42,6 +42,6 @@ authselect apply-changes
 
 echo "[+] Restarting services"
 systemctl restart sssd sshd
-systemctl enable --now oddjob-mkhomedir
+systemctl enable --now oddjob-mkhomedir || true
 
 echo "[✓] SSHD PAM + authselect configuration applied successfully"
