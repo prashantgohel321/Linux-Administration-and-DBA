@@ -1,33 +1,40 @@
 ---
-- name: Apply SSH + PAM config (all servers)
+- name: Apply SSHD PAM and authselect (all servers)
   hosts: all
   become: yes
   tasks:
-    - copy:
-        src: scripts/sshd_pam_fix.sh
+    - name: Copy sshd_pam_fix.sh
+      copy:
+        src: sshd_pam_fix.sh
         dest: /tmp/sshd_pam_fix.sh
         mode: '0755'
 
-    - command: /tmp/sshd_pam_fix.sh
+    - name: Apply SSHD PAM changes
+      command: /tmp/sshd_pam_fix.sh
 
-- name: Apply sudoers (AI)
+- name: Apply sudoers on AI servers (no sudo)
   hosts: ai
   become: yes
   tasks:
-    - copy:
-        src: scripts/sudoers_setup.sh
-        dest: /tmp/sudoers_setup.sh
-        mode: '0755'
-    - command: /tmp/sudoers_setup.sh ai
+    - debug:
+        msg: "AI server: no sudoers required"
 
-- name: Apply sudoers (DevOps)
+- name: Apply sudoers on DevOps servers
   hosts: devops
   become: yes
   tasks:
-    - command: /tmp/sudoers_setup.sh devops
+    - name: Copy sudoers_setup.sh
+      copy:
+        src: sudoers_setup.sh
+        dest: /tmp/sudoers_setup.sh
+        mode: '0755'
 
-- name: Apply sudoers (Admin)
+    - name: Apply DevOps sudoers
+      command: /tmp/sudoers_setup.sh devops
+
+- name: Apply sudoers on Admin servers
   hosts: admin
   become: yes
   tasks:
-    - command: /tmp/sudoers_setup.sh admin
+    - name: Apply Admin sudoers
+      command: /tmp/sudoers_setup.sh admin

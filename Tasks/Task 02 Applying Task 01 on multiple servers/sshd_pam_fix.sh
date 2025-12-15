@@ -1,15 +1,17 @@
 #!/bin/bash
 set -e
 
-PROFILE=myprofile
+PROFILE="myprofile"
 
-# Create custom authselect profile if missing
-if [ ! -d /etc/authselect/custom/$PROFILE ]; then
-  authselect create-profile $PROFILE --base-on sssd
+echo "[+] Creating custom authselect profile if not exists"
+
+if [ ! -d /etc/authselect/custom/${PROFILE} ]; then
+    authselect create-profile ${PROFILE} --base-on sssd
 fi
 
-# Copy sshd PAM file
-cat << EOF > /etc/authselect/custom/$PROFILE/sshd
+echo "[+] Writing sshd PAM file into custom profile"
+
+cat << EOF > /etc/authselect/custom/${PROFILE}/sshd
 #%PAM-1.0
 
 auth       sufficient   pam_sss.so
@@ -18,8 +20,8 @@ auth       include      postlogin
 
 account    required     pam_sepermit.so
 account    required     pam_nologin.so
-account    [success=1 default=ignore] pam_sss.so # CHANGE
-account    requisite    pam_deny.so # CHANGE
+account    [success=1 default=ignore] pam_sss.so
+account    requisite    pam_deny.so
 account    include      password-auth
 
 password   include      password-auth
@@ -32,12 +34,14 @@ session    include      password-auth
 session    include      postlogin
 EOF
 
-# Apply profile
-authselect select custom/$PROFILE --force
+echo "[+] Selecting custom authselect profile"
+authselect select custom/${PROFILE} --force
+
+echo "[+] Applying authselect changes"
 authselect apply-changes
 
-# Restart services
+echo "[+] Restarting services"
 systemctl restart sssd sshd
-systemctl enable --now oddjob-mkhomedir || true
+systemctl enable --now oddjob-mkhomedir
 
-echo "SSHD + PAM configuration applied successfully"
+echo "[✓] SSHD PAM + authselect configuration applied successfully"

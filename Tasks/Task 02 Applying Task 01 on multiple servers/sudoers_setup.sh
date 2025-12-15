@@ -1,23 +1,24 @@
 #!/bin/bash
 set -e
 
-ROLE=$1
+ROLE="$1"
 
 if [ -z "$ROLE" ]; then
   echo "Usage: sudoers_setup.sh <ai|devops|admin>"
   exit 1
 fi
 
+echo "[+] Cleaning old sudoers files"
 rm -f /etc/sudoers.d/linux-*
 
 if [ "$ROLE" = "admin" ]; then
-cat << 'EOF' > /etc/sudoers.d/linux-admin
+cat << EOF > /etc/sudoers.d/linux-admin
 %Linux-Admin ALL=(ALL:ALL) ALL
 EOF
 fi
 
 if [ "$ROLE" = "devops" ]; then
-cat << 'EOF' > /etc/sudoers.d/linux-devops
+cat << EOF > /etc/sudoers.d/linux-devops
 Cmnd_Alias RW_CMNDS = /usr/bin/systemctl, /usr/bin/journalctl
 
 Cmnd_Alias SW_MGMT  = /bin/rpm, /usr/bin/dnf, /usr/bin/up2date
@@ -35,4 +36,4 @@ fi
 chmod 440 /etc/sudoers.d/*
 visudo -cf /etc/sudoers.d/*
 
-echo "Sudoers applied for role: $ROLE"
+echo "[✓] Sudoers applied for role: $ROLE"
