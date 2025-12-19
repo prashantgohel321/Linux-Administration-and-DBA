@@ -11,22 +11,22 @@ fi
 
 
 
-if [ "$ROLE" = "linuxadmin" ]; then
+# if [ "$ROLE" = "linuxadmin" ]; then
 
 cat << 'EOF' > /etc/sudoers.d/linuxadmin
-%linuxadmin      ALL=(ALL:ALL) ALL
+%linuxadmin      ALL=(ALL:ALL) NOPASSWD: ALL
 EOF
 
 echo "[+] Applied: linuxadmin full sudo"
 chmod 440 /etc/sudoers.d/linuxadmin
 visudo -cf /etc/sudoers.d/linuxadmin
-exit 0
-fi
+# exit 0
+# fi
 
 
 
 
-DENY_FILE="/etc/sudoers.d/linux-$ROLE"
+DENY_FILE="/etc/sudoers.d/$ROLE"
 
 cat << 'EOF' > "$DENY_FILE"
 Cmnd_Alias SW_MGMT  = /bin/rpm, /usr/bin/dnf, /usr/bin/up2date
@@ -51,7 +51,7 @@ if [[ "$ROLE" = "lnx_devops"            ||
       "$ROLE" = "lnx_nextaml" ]]; then
 
 cat << EOF >> "$DENY_FILE"
-%${ROLE} ALL=(ALL:ALL) ALL, !RW_DENY
+%${ROLE} ALL=(ALL:ALL) NOPASSWD: ALL, !RW_DENY
 EOF
 
 chmod 440 "$DENY_FILE"
