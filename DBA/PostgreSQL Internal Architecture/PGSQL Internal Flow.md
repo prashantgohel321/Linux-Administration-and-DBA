@@ -10,7 +10,7 @@ UPDATE accounts SET balance = balance - 100 WHERE id = 10;
 
 ---
 
-## 1️⃣ Client Connects → Backend Spawns
+## Client Connects → Backend Spawns
 
 When our application connects to PostgreSQL, the Postmaster creates a **backend process** dedicated to that session. This backend will handle everything for this user: authentication, SQL execution, memory usage, locks, WAL, and communication.
 
@@ -22,26 +22,26 @@ Client → Postmaster → Backend process (per session)
 
 ---
 
-## 2️⃣ SQL Enters → Parsing + Rewriting
+## SQL Enters → Parsing + Rewriting
 
 The backend receives the SQL as plain text.
 It must first check: is this valid SQL? Are the table and column names correct? If views are involved, PostgreSQL rewrites them into real table references.
 
 Flow:
 
-```
+```bash
 SQL Text → Parser → Validator → Rewriter → Query Tree
 ```
 
 ---
 
-## 3️⃣ Planning Phase → Statistics + Index Decision
+## Planning Phase → Statistics + Index Decision
 
 Next, PostgreSQL decides the best way to run this query. It checks statistics gathered earlier by the **stats collector**: table size, index usage, row counts, activity history.
 
 Based on this info, PostgreSQL may pick:
 
-```
+```bash
 Index Scan on accounts.id
 ```
 
@@ -49,13 +49,13 @@ This planning step only happens once per query execution; it produces the final 
 
 Diagram:
 
-```
+```bash
 Stats Collector → Statistics → Planner → Execution Plan
 ```
 
 ---
 
-## 4️⃣ Execution Starts → Shared Buffers + MVCC Versioning
+## Execution Starts → Shared Buffers + MVCC Versioning
 
 The backend now executes the plan:
 
@@ -67,7 +67,7 @@ When the UPDATE occurs, PostgreSQL **does not overwrite the old row**. It create
 
 Diagram:
 
-```
+```bash
 shared_buffers (read/write cache)
 Old row → dead
 New row → live
@@ -75,19 +75,19 @@ New row → live
 
 ---
 
-## 5️⃣ Locks Engage → Row Lock
+## Locks Engage → Row Lock
 
 To avoid two writers updating same row simultaneously, PostgreSQL applies a **row-level lock**. Readers do not block because MVCC lets them see historical versions.
 
 Flow:
 
-```
+```bash
 UPDATE → Row lock → Modify page in memory
 ```
 
 ---
 
-## 6️⃣ WAL Creation → WAL Buffers → Durability
+## WAL Creation → WAL Buffers → Durability
 
 Before the database can commit this change, PostgreSQL writes the redo record into **wal_buffers**:
 
@@ -100,13 +100,13 @@ This WAL record exists only in memory for now.
 
 Diagram:
 
-```
+```bash
 Row change → WAL record → wal_buffers
 ```
 
 ---
 
-## 7️⃣ COMMIT → WAL Writer Flushes to Disk
+## COMMIT → WAL Writer Flushes to Disk
 
 When the user issues COMMIT:
 
@@ -116,13 +116,13 @@ When the user issues COMMIT:
 
 Flow:
 
-```
+```bash
 COMMIT → WAL writer → WAL file on disk → Success returned
 ```
 
 ---
 
-## 8️⃣ Background Writer → Slow Page Flushing
+## Background Writer → Slow Page Flushing
 
 Dirty pages remain in shared buffers until either:
 
@@ -133,13 +133,13 @@ This prevents backend processes from being forced to write pages directly.
 
 Diagram:
 
-```
+```bash
 Dirty page → background writer → table file
 ```
 
 ---
 
-## 9️⃣ Checkpointer → Recovery Safe Point
+## Checkpointer → Recovery Safe Point
 
 Checkpointer occasionally forces dirty pages to disk and inserts a checkpoint record into WAL so PostgreSQL knows: "Recovery starts from here."
 
@@ -151,14 +151,14 @@ Trigger cases:
 
 Flow:
 
-```
+```bash
 All dirty pages → flushed
 WAL checkpoint record → created
 ```
 
 ---
 
-## 🔟 Archiver → Long-term WAL Storage (If Enabled)
+## Archiver → Long-term WAL Storage (If Enabled)
 
 If archive_mode = on, finished WAL segments are copied out by the **archiver** to external storage for:
 
@@ -174,19 +174,19 @@ Completed WAL segment → Archiver → Archive directory
 
 ---
 
-## 1️⃣1️⃣ Autovacuum → MVCC Cleanup
+## Autovacuum → MVCC Cleanup
 
 Because MVCC keeps old versions, dead tuples accumulate. Autovacuum workers remove dead rows, update statistics, and control table bloat to maintain long-term performance.
 
 Flow:
 
-```
+```bash
 Dead tuples → Autovacuum → Space reclaimed
 ```
 
 ---
 
-## 1️⃣2️⃣ Stats Collector → Future Planning Support
+## Stats Collector → Future Planning Support
 
 Each execution updates usage stats:
 
@@ -199,7 +199,7 @@ Planner uses these stats later to make faster decisions.
 
 Flow:
 
-```
+```bash
 Execution info → Stats collector → Planner feedback
 ```
 
@@ -207,7 +207,7 @@ Execution info → Stats collector → Planner feedback
 
 ## Final Continuous Flow Diagram
 
-```
+```bash
 Client
  │
  ▼

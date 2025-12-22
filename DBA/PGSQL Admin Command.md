@@ -4,7 +4,14 @@ This markdown explains essential PostgreSQL administration commands, covering OS
 
 ---
 
-## 1️⃣ General Server Management (Shell Commands)
+- [PostgreSQL Administration Commands (Simplified Guide)](#postgresql-administration-commands-simplified-guide)
+  - [General Server Management (Shell Commands)](#general-server-management-shell-commands)
+  - [psql Meta-Commands (Run inside psql)](#psql-meta-commands-run-inside-psql)
+  - [SQL Administration Commands (Inside psql)](#sql-administration-commands-inside-psql)
+  - [Backup and Restore (Shell Level)](#backup-and-restore-shell-level)
+
+
+## General Server Management (Shell Commands)
 
 These commands run in the operating system terminal.
 
@@ -64,67 +71,67 @@ SHOW config_file;
 
 ---
 
-## 2️⃣ psql Meta-Commands (Run inside psql)
+## psql Meta-Commands (Run inside psql)
 
 Prefix = `\` (no semicolon).
 
 **List all databases:**
 
-```
+```bash
 \l
 ```
 
 **Connect to database:**
 
-```
+```bash
 \c dbname
 ```
 
 **List tables:**
 
-```
+```bash
 \dt
 ```
 
 **Describe a table:**
 
-```
+```bash
 \d table_name
 ```
 
 **List all users/roles:**
 
-```
+```bash
 \du
 ```
 
 **List schemas:**
 
-```
+```bash
 \dn
 ```
 
 **List functions:**
 
-```
+```bash
 \df
 ```
 
 **Meta-command help:**
 
-```
+```bash
 \?
 ```
 
 **Exit psql:**
 
-```
+```bash
 \q
 ```
 
 ---
 
-## 3️⃣ SQL Administration Commands (Inside psql)
+## SQL Administration Commands (Inside psql)
 
 End each with `;`.
 
@@ -180,7 +187,7 @@ Retrieve PID using pg_stat_activity.
 
 ---
 
-## 4️⃣ Backup and Restore (Shell Level)
+## Backup and Restore (Shell Level)
 
 Run these in OS terminal.
 

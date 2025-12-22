@@ -7,7 +7,19 @@
 
 ---
 
-## 1️⃣ Common Meta-Commands
+- [PostgreSQL psql Command Guide](#postgresql-psql-command-guide)
+  - [Common Meta-Commands](#common-meta-commands)
+    - [Help \& Assistance](#help--assistance)
+    - [Connection \& Session](#connection--session)
+  - [Structure \& Information Commands](#structure--information-commands)
+  - [Input / Output Commands](#input--output-commands)
+  - [SQL Commands Inside psql](#sql-commands-inside-psql)
+  - [Command-Line Startup Options](#command-line-startup-options)
+- [Quick Summary](#quick-summary)
+
+
+
+## Common Meta-Commands
 
 ### Help & Assistance
 
@@ -25,7 +37,7 @@
 
 ---
 
-## 2️⃣ Structure & Information Commands
+## Structure & Information Commands
 
 **\dt** – List tables in current database.
 
@@ -44,7 +56,7 @@ Use `\d+ [table_name]` for extended detail.
 
 ---
 
-## 3️⃣ Input / Output Commands
+## Input / Output Commands
 
 **\i [filename]** – Run SQL commands from file.
 
@@ -60,7 +72,7 @@ Example: `\! ls`
 
 ---
 
-## 4️⃣ SQL Commands Inside psql
+## SQL Commands Inside psql
 
 You can run SQL normally:
 
@@ -102,7 +114,7 @@ DELETE FROM t WHERE id=1;
 
 ---
 
-## 5️⃣ Command-Line Startup Options
+## Command-Line Startup Options
 
 Run psql with connection flags:
 

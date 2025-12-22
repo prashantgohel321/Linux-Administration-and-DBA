@@ -4,6 +4,27 @@ This markdown explains the important configuration settings inside `postgresql.c
 
 ---
 
+- [PostgreSQL Configuration Parameters (Simplified Guide)](#postgresql-configuration-parameters-simplified-guide)
+  - [1. File Locations](#1-file-locations)
+  - [2. Connection Settings (Non‑Authentication)](#2-connection-settings-nonauthentication)
+  - [3. Resource Usage – Memory](#3-resource-usage--memory)
+  - [4. Resource Usage – Disk \& Files](#4-resource-usage--disk--files)
+  - [5. Cost-Based Vacuum Delay](#5-cost-based-vacuum-delay)
+  - [6. Background Writer Settings](#6-background-writer-settings)
+  - [7. Parallelism](#7-parallelism)
+  - [8. Write-Ahead Log (WAL)](#8-write-ahead-log-wal)
+  - [9. Checkpoint Settings](#9-checkpoint-settings)
+  - [10. WAL Archiving / PITR](#10-wal-archiving--pitr)
+  - [11. Basic Replication Settings](#11-basic-replication-settings)
+  - [12. Logging \& Reporting](#12-logging--reporting)
+  - [13. Process Title](#13-process-title)
+  - [14. Statistics System](#14-statistics-system)
+  - [15. Autovacuum Settings](#15-autovacuum-settings)
+  - [16. Client Defaults](#16-client-defaults)
+  - [17. Locale \& Formatting](#17-locale--formatting)
+  - [18. Lock Management](#18-lock-management)
+
+
 ## 1. File Locations
 
 **data_directory** – Where PostgreSQL stores data files.
