@@ -1,6 +1,6 @@
-# PostgreSQL File System Level Backup – Step‑By‑Step Real Scenario Guide
+# PGSQL File System Level Backup – Step‑By‑Step Real Scenario Guide
 
-- [PostgreSQL File System Level Backup – Step‑By‑Step Real Scenario Guide](#postgresql-file-system-level-backup--stepbystep-real-scenario-guide)
+- [PGSQL File System Level Backup – Step‑By‑Step Real Scenario Guide](#pgsql-file-system-level-backup--stepbystep-real-scenario-guide)
   - [What a filesystem-level backup is:](#what-a-filesystem-level-backup-is)
   - [Scenario Overview](#scenario-overview)
   - [Step 1: Stop the Server Before Backup](#step-1-stop-the-server-before-backup)
@@ -9,7 +9,7 @@
   - [Step 4: Simulate Disaster](#step-4-simulate-disaster)
   - [Step 5: Remove the Damaged Data Directory](#step-5-remove-the-damaged-data-directory)
   - [Step 6: Extract the Backup](#step-6-extract-the-backup)
-  - [Step 7: Start PostgreSQL](#step-7-start-postgresql)
+  - [Step 7: Start PGSQL](#step-7-start-pgsql)
   - [Step 8: Snapshot‑Based Backups (When Downtime Isn’t Allowed)](#step-8-snapshotbased-backups-when-downtime-isnt-allowed)
   - [Step 9: WAL Inclusion Requirement](#step-9-wal-inclusion-requirement)
   - [Step 10: Multi‑Filesystem Warning](#step-10-multifilesystem-warning)
@@ -21,27 +21,29 @@
 <br>
 
 ## What a filesystem-level backup is:
-- It means copying the raw PostgreSQL data directory at the OS level (files, folders, blocks) instead of dumping SQL.
+- A filesystem-level backup means taking a copy of PGSQL’s actual data files, not exporting SQL.
 
-**Why needed?**
-- Because it gives a full physical snapshot that can be restored exactly as it was — useful for PITR, replication, fast disaster recovery, and huge databases.
+- Instead of dumping tables as SQL commands, you copy the whole PGSQL data directory directly from the OS. This includes <u><b>files</b></u>, <u><b>folders</b></u>, and the real <u><b>on-disk data pages</b></u> that PGSQL uses.
 
-What it includes:
-- data files
+**Why this is done:**
+- Because it gives you an exact p<mark><b>hysical copy of the database</b></mark> at that moment. When you restore it, PGSQL comes back in the same state as before. 
+- This is important for things like PITR, replication setups, fast disaster recovery, and very large databases where logical dumps are too slow.
+
+**What it contains:**
+Everything inside **`$PGDATA`**:
+- actual table and index files (physical pages)
 - WAL files
-- config files
-- tables + indexes (as physical pages)
 - system catalogs
+- configuration files
 
-> Basically everything under $PGDATA.
-
+---
 
 <br>
 <br>
 
 ## Scenario Overview
 
-A PostgreSQL server is running a database on a Linux machine. Data lives inside the PostgreSQL data directory at:
+A PGSQL server is running a database on a Linux machine. Data lives inside the PGSQL data directory at:
 
 ```bash
 /var/lib/pgql/15/main
@@ -58,12 +60,12 @@ $PGDATA
 
 ## Step 1: Stop the Server Before Backup
 
-- A file system backup must capture files in a frozen state. PostgreSQL constantly updates pages and transaction logs while running, so copying live files risks corruption.
+- A file system backup must capture files in a frozen state. PGSQL constantly updates pages and transaction logs while running, so copying live files risks corruption.
 
-Stop PostgreSQL cleanly:
+Stop PGSQL cleanly:
 
 ```bash
-sudo systemctl stop postgresql
+sudo systemctl stop postgresql-15
 ```
 
 - do not rely on blocking connections — the server must be offline.
@@ -120,7 +122,7 @@ Move the tar file to external storage:
 sudo mv /backups/main_backup.tar /safe/location/
 ```
 
-- Physical backups are raw binary copies, so they will be large. They include everything inside PostgreSQL, even empty page space.
+- Physical backups are raw binary copies, so they will be large. They include everything inside PGSQL, even empty page space.
 
 - Once stored, the tar file is your frozen state image.
 
@@ -131,14 +133,14 @@ sudo mv /backups/main_backup.tar /safe/location/
 
 ## Step 4: Simulate Disaster
 
-- Imagine that days later PostgreSQL fails. Files are damaged or deleted. The database will not start.
+- Imagine some days later PGSQL fails. Files are damaged or deleted. The database will not start.
 
 - The file system backup will now be used to restore.
 
-Stop PostgreSQL immediately if it is running in a broken state:
+Stop PGSQL immediately if it is running in a broken state:
 
 ```bash
-sudo systemctl stop postgresql
+sudo systemctl stop postgresql-15
 ```
 
 ---
@@ -165,7 +167,7 @@ Never mix backed‑up files with existing ones. The server expects perfect inter
 
 ## Step 6: Extract the Backup
 
-Place the tar file back into PostgreSQL’s data location:
+Place the tar file back into PGSQL’s data location:
 
 ```bash
 cd /var/lib/pgsql/15
@@ -185,17 +187,17 @@ At this point the directory looks exactly like it did at backup time.
 <br>
 <br>
 
-## Step 7: Start PostgreSQL
+## Step 7: Start PGSQL
 
 Start the server normally:
 
 ```bash
-sudo systemctl start postgresql-15
+sudo systemctl start PGSQL-15
 ```
 
-- PostgreSQL reads the recovered files and boots into the same state they had when the backup was taken.
+- PGSQL reads the recovered files and boots into the same state they had when the backup was taken.
 
-- If the previous shutdown happened cleanly, PostgreSQL starts normally. If the shutdown was dirty, PostgreSQL performs crash recovery automatically using the WAL files stored inside the backup.
+- If the previous shutdown happened cleanly, PGSQL starts normally. If the shutdown was dirty, PGSQL performs crash recovery automatically using the WAL files stored inside the backup.
 
 ---
 
@@ -204,13 +206,13 @@ sudo systemctl start postgresql-15
 
 ## Step 8: Snapshot‑Based Backups (When Downtime Isn’t Allowed)
 
-Some filesystems offer snapshot volume freezing. In this case PostgreSQL can remain online:
+Some filesystems offer snapshot volume freezing. In this case PGSQL can remain online:
 
 1. trigger filesystem snapshot
 2. copy data directory from snapshot
 3. release snapshot
 
-After restore, PostgreSQL replays WAL and comes online.
+After restore, PGSQL replays WAL and comes online.
 
 Run a checkpoint before snapshot to reduce replay time:
 
@@ -227,7 +229,7 @@ Snapshots must include the entire cluster directory. Partial snapshots break con
 
 ## Step 9: WAL Inclusion Requirement
 
-- WAL information must be present inside the backup. PostgreSQL needs WAL to recover crash‑state pages.
+- WAL information must be present inside the backup. PGSQL needs WAL to recover crash‑state pages.
 
 - If WAL is missing, the restored instance cannot rebuild consistency.
 
@@ -249,7 +251,7 @@ If timestamps differ:
 
 The restored copy becomes unusable.
 
-In such setups, consider continuous archiving or shutting down PostgreSQL before snapshotting.
+In such setups, consider continuous archiving or shutting down PGSQL before snapshotting.
 
 ---
 
@@ -276,9 +278,9 @@ SQL dumps rebuild databases logically. Physical backups restore them byte‑for�
 
 ## Final Understanding Through This Flow
 
-A file system backup is simply freezing the PostgreSQL data directory and restoring it later. It works perfectly only when:
+A file system backup is simply freezing the PGSQL data directory and restoring it later. It works perfectly only when:
 
-* PostgreSQL was shut down or the filesystem snapshot is atomic
+* PGSQL was shut down or the filesystem snapshot is atomic
 * the entire directory is copied
 * WAL remains intact
 

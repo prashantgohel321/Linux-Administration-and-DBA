@@ -5,7 +5,7 @@
 
 ## Scenario Background
 
-A PostgreSQL server hosts a production database called salesdb. It contains customer records, product listings, and daily transactions. A DBA wants to:
+A PostgreSQL server hosts a production database called `salesdb`. It contains customer records, product listings, and daily transactions. A DBA wants to:
 
 1. Create SQL dumps of this database.
 2. Restore the dump into a new server.
