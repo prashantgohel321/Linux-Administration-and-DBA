@@ -11,7 +11,7 @@
 - [How a **`B-tree`** index works internally](#how-a-b-tree-index-works-internally)
 - [Internal Query Flow (Step by step flow)](#internal-query-flow-step-by-step-flow)
   - [Step 1 Root page](#step-1-root-page)
-  - [Step 3 Intermediate Page](#step-3-intermediate-page)
+  - [Step 2 Intermediate Page](#step-2-intermediate-page)
   - [Step 3 Leaf Page](#step-3-leaf-page)
   - [Step 4 Heap Fetch](#step-4-heap-fetch)
 - [Index-only scan (fastest case)](#index-only-scan-fastest-case)
@@ -22,6 +22,8 @@
 - [When I use indexes](#when-i-use-indexes)
 - [Summary](#summary)
 - [Basic Index Creation](#basic-index-creation)
+- [Verify the index exist](#verify-the-index-exist)
+- [Check if queries actually use it](#check-if-queries-actually-use-it)
 - [How PGSQL Uses an Index (Practical Flow)](#how-pgsql-uses-an-index-practical-flow)
 - [Why PGSQL Ignores an Existing Index](#why-pgsql-ignores-an-existing-index)
 - [Composite (Multi-Column) Indexes](#composite-multi-column-indexes)
@@ -32,6 +34,9 @@
 - [Detecting Index Size Growth](#detecting-index-size-growth)
 - [Reindexing (use carefully)](#reindexing-use-carefully)
 - [Partial Index](#partial-index)
+- [Maintain it](#maintain-it)
+- [Drop it if useless](#drop-it-if-useless)
+- [Monitor index usage](#monitor-index-usage)
 
 
 <br>
@@ -148,7 +153,7 @@ SELECT * FROM users WHERE user_id = 105;
 <br>
 <br>
 
-### Step 3 Intermediate Page
+### Step 2 Intermediate Page
 - The value range is narrowed further
 - PGSQL decides which child page to follow next.
 
@@ -365,10 +370,46 @@ CREATE INDEX idx_orders_user_id ON orders(user_id);
 <br>
 <br>
 
+## Verify the index exist
+```bash
+\di # checks pg_indexes
+
+# OR
+
+select indexname, indexdef from pg_indexes where tablename = 'orders';
+```
+
+
+<br>
+<br>
+
 **This helps queries like:**
 ```sql
 SELECT * FROM orders WHERE user_id = 101;
 ```
+
+<br>
+<br>
+
+## Check if queries actually use it
+```bash
+EXPLAIN SELECT * FRPM orders WHERE user_id='101';
+# Shows how PostgreSQL plans to run the query — which index or scan it thinks it will use and the estimated cost.
+# It does not actually run the query.
+
+
+# OR
+
+EXPLAIN ANALYZE SELECT * FROM orders WHERE user_id='101';
+# Actually runs the query and then shows the real execution details — real time taken, rows processed, and whether the plan was accurate.
+
+# In short:
+  # EXPLAIN = plan only (estimates)
+  # EXPLAIN ANALYZE = plan + real execution
+```
+
+> If you see index scan, the index is being used.
+
 
 ---
 
@@ -570,3 +611,39 @@ WHERE status = 'PENDING';
 ```
 > This creates a smaller, more efficient index.
 
+<br>
+<br>
+
+## Maintain it
+Indexes need:
+- VACCUM -> to clean dead entries
+- REINDEX -> If bloated or corrupted
+
+```bash
+REINDEX INDEX idx_users_email;
+```
+
+---
+
+<br>
+<br>
+
+## Drop it if useless
+If an index is never used:
+```bash
+DROP INDEX idx_users_email;
+```
+
+---
+
+<br>
+<br>
+
+## Monitor index usage
+```bash
+SELECT relname, idx_scan 
+FROM pg_stats_user_indexes
+WHERE indexrelname='idx_users_email';
+```
+
+> Indexes are not free. They Speed up reads but slow down writes and use disk space.
