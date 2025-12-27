@@ -21,6 +21,17 @@
 - [Why index bloat happens](#why-index-bloat-happens)
 - [When I use indexes](#when-i-use-indexes)
 - [Summary](#summary)
+- [Basic Index Creation](#basic-index-creation)
+- [How PGSQL Uses an Index (Practical Flow)](#how-pgsql-uses-an-index-practical-flow)
+- [Why PGSQL Ignores an Existing Index](#why-pgsql-ignores-an-existing-index)
+- [Composite (Multi-Column) Indexes](#composite-multi-column-indexes)
+- [Indexes for ORDER BY and LIMIT](#indexes-for-order-by-and-limit)
+- [Index-only scan (fastest case)](#index-only-scan-fastest-case-1)
+- [Cost of indexes (very important)](#cost-of-indexes-very-important)
+- [Updates, MVCC and Index Bloat](#updates-mvcc-and-index-bloat)
+- [Detecting Index Size Growth](#detecting-index-size-growth)
+- [Reindexing (use carefully)](#reindexing-use-carefully)
+- [Partial Index](#partial-index)
 
 
 <br>
@@ -246,6 +257,63 @@ Heavy **`UPDATE`** and **`DELETE`** activity causes index bloat over time.
   - Conditions match most rows
   - The table is very small
 
+<br>
+<details>
+<summary><mark><b>Explained with Examples</b></mark></summary>
+<br>
+
+**When i create an index**
+
+> Filtering on a column usedd often in queries:
+```sql
+CREATE INDEX idx_users_email ON users(email);
+```
+
+<br>
+<br>
+
+> When the condition is selective (few rows returned):
+```sql
+SELECT * FROM users WHERE email = "prashant@gmail.com";
+```
+
+<br>
+<br>
+
+> When read performance is more important then write cost:
+```sql
+CREATE INDEX idx_orders_created_at ON orders(created_at);
+```
+
+<br>
+<br>
+
+**When I avoid indexes:**
+
+> When data changes constantly (heavy inserts or updates):
+```sql
+UPDATE logs SET status = 'done' WHERE processed = flase;
+```
+
+<br>
+<br>
+
+> When conditions match most rows (index wont help)
+```sql
+SELECT * FROM orders WHERE status IS NOT NULL;
+```
+
+<br>
+<br>
+
+> When the table is very small:
+```sql
+SELECT * FROM country_codes;
+```
+
+
+</details>
+<br>
 
 ---
 
@@ -262,3 +330,243 @@ Heavy **`UPDATE`** and **`DELETE`** activity causes index bloat over time.
 - Planner decides index vs sequential scan
 - Index speeds up reads, slows down writes
 - Wrong indexes hurt performance
+
+---
+
+<br>
+<br>
+<br>
+<br>
+
+<center><h1>Indexes in PGSQL - Practical Guide</h1></center>
+<br>
+<br>
+
+## Basic Index Creation
+**Example table:**
+```sql
+CREATE TABLE(
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT,
+    status TEXT,
+    created_at TIMESTAMP,
+    amount NUMERIC
+);
+```
+
+<br>
+<br>
+
+**Basic Index:**
+```sql
+CREATE INDEX idx_orders_user_id ON orders(user_id);
+```
+
+<br>
+<br>
+
+**This helps queries like:**
+```sql
+SELECT * FROM orders WHERE user_id = 101;
+```
+
+---
+
+<br>
+<br>
+
+## How PGSQL Uses an Index (Practical Flow)
+1. Planner checks if an index exists
+2. Planner estimates cost of index scan vs sequential scan
+3. If index scan is cheaper:
+   1. PGSQL walks the B-tree
+   2. Finds TID (row location)
+   3. Fetches row from heap
+4. Otherwise, it uses sequential scan
+
+Planner always chooses the cheapest plan, not the one with an index.
+
+---
+
+<br>
+<br>
+
+## Why PGSQL Ignores an Existing Index
+- **Small table:** If the tables has very few rows, sequential scan is faster.
+- **Low selectivity:** If most rows match the condition, index becomes useless.
+
+<br>
+
+**Example:**
+```sql
+WHERE status = 'ACTIVE';
+```
+> If 90% rows are ACTIVE, PGSQL prefers sequential scan.
+
+<br>
+<br>
+
+- **Functions on indexed columns:**
+
+```sql
+WHERE LOWER(status) = 'pending';
+```
+
+> If an index exist on `status`, it cannot be used here.
+
+<br>
+
+**Solution:**
+```sql
+CREATE INDEX idx_lower_status ON orders(LOWER(status));
+```
+
+<br>
+<br>
+
+- **Outdated statistics:**
+Planner decisions depend on statustics.
+
+**Fix:**
+```sql
+ANALYZE;
+```
+
+<br>
+<br>
+
+## Composite (Multi-Column) Indexes
+**Query:**
+```sql
+SELECT * FROM orders 
+WHERE user_id = 101 AND status = "PAID";
+```
+
+**Correct Index:**
+```sql
+CREATE INDEX idx_orders_user_status 
+ON orders (user_id, status);
+```
+
+**Important Rule:**
+- Index works left to right
+- Column order matters
+
+---
+
+<br>
+<br>
+
+## Indexes for ORDER BY and LIMIT
+**Query:**
+```sql
+SELECT * FROM orders
+WHERE user_id = 101
+ORDER BY created_at DESC
+LIMIT 10;
+```
+
+**Best Index:**
+```sql
+CREATE INDEX idx_orders_user_created
+ON order (user_id, created_at DESC);
+```
+
+> This avoids sorting and speeds up paginations queries.
+
+<br>
+<br>
+
+## Index-only scan (fastest case)
+**Query:**
+```sql
+SELECT user_id FROM orders WHERE user_id = 101;
+```
+
+If:
+- Index contains all required columns
+- Visibility map is clean
+
+> PGSQL skips heap access and returns data directly from index.
+
+---
+
+<br>
+<br>
+
+## Cost of indexes (very important)
+Each index makes:
+- INSERT slower
+- UPDATE slower
+- DELETE slower
+- VACUUM heavier
+- Disk usage higher
+
+Indexes are not free. <br>
+Too many indexes = slow writes.
+
+---
+
+<br>
+<br>
+
+## Updates, MVCC and Index Bloat
+- When a row is updated:
+  - PGSQL creates a new row version
+  - Old row becomes dead
+  - New index entry is created
+  - Old index entry stays until vacuum.
+- Frequent updates cause index bloat.
+
+---
+
+<br>
+<br>
+
+## Detecting Index Size Growth
+```sql
+SELECT
+    relname,
+    pg_size_pretty(pg_relation_size(relid))
+FROM pg_stat_user_indexes;
+```
+
+> If an index size keeps growing without data growth, bloat is likely.
+
+---
+
+<br>
+<br>
+
+## Reindexing (use carefully)
+```sql
+REINDEX INDEX idx_orders_user_id;
+```
+
+**Reindex can:**
+- Bloack queries
+- Cause performance impact
+
+Use only when necessary. <br>
+Autovacuum tunning is usually better.
+
+---
+
+<br>
+<br>
+
+## Partial Index
+
+If a query targets a small subset of data:
+```sql
+SELECT * FROM orders WHERE staus = "PENDING";
+```
+
+**Create partial index:**
+```sql
+CREATE INDEX idx_pending_orders
+ON orders(user_id)
+WHERE status = 'PENDING';
+```
+> This creates a smaller, more efficient index.
+
