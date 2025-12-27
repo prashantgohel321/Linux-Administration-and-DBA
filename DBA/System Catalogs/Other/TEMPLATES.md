@@ -3,6 +3,32 @@
 <br>
 <br>
 
+- [In simple words:](#in-simple-words)
+- [What is template1?](#what-is-template1)
+- [When do i use template1?](#when-do-i-use-template1)
+- [What is **`template0`**?](#what-is-template0)
+- [When do i use **`template0`**?](#when-do-i-use-template0)
+- [Key differences](#key-differences)
+- [In simple words:](#in-simple-words-1)
+- [How to modufy **`template1`**?](#how-to-modufy-template1)
+- [Real life scenario 1: Common Extension Required Everywhere](#real-life-scenario-1-common-extension-required-everywhere)
+- [Real life scenario 2: Common Schema for All Databases](#real-life-scenario-2-common-schema-for-all-databases)
+- [Real life scenario 3: Secure Default Permissions](#real-life-scenario-3-secure-default-permissions)
+- [Real life scenario 4: Common Roles](#real-life-scenario-4-common-roles)
+- [Important rule for **`template1`**](#important-rule-for-template1)
+- [Can we create a new template database?](#can-we-create-a-new-template-database)
+- [Why create custom templates?](#why-create-custom-templates)
+- [How to create a custom template (step by step)](#how-to-create-a-custom-template-step-by-step)
+  - [Step 1 Create a Normal Database](#step-1-create-a-normal-database)
+  - [Step 2 Add required objects](#step-2-add-required-objects)
+  - [Step 3 Mark it as a template](#step-3-mark-it-as-a-template)
+  - [Using the template](#using-the-template)
+- [When I Prefer Custom Templates Over **`template1`**](#when-i-prefer-custom-templates-over-template1)
+
+<br>
+<br>
+
+
 ## In simple words:
 - PGSQL creates a new database by copying an existing database called template.
 - By default, PGSQL uses **`template1`**.
