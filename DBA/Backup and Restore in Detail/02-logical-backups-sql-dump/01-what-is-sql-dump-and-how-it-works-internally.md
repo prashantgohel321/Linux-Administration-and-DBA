@@ -1,179 +1,246 @@
-# What a SQL Dump Is and How It Works Internally in PostgreSQL
+# 01 What a SQL Dump Is and How It Works Internally in PostgreSQL
+
+<br>
+<br>
+
+- [01 What a SQL Dump Is and How It Works Internally in PostgreSQL](#01-what-a-sql-dump-is-and-how-it-works-internally-in-postgresql)
+  - [In simple words](#in-simple-words)
+  - [Why SQL dumps exist](#why-sql-dumps-exist)
+  - [Tool used: `pg_dump`](#tool-used-pg_dump)
+  - [What `pg_dump` actually reads](#what-pg_dump-actually-reads)
+  - [How `pg_dump` works internally (step-by-step)](#how-pg_dump-works-internally-step-by-step)
+  - [Why `pg_dump` does not block users](#why-pg_dump-does-not-block-users)
+  - [What consistency means in a SQL dump](#what-consistency-means-in-a-sql-dump)
+  - [What a SQL dump contains](#what-a-sql-dump-contains)
+  - [What a SQL dump does NOT contain](#what-a-sql-dump-does-not-contain)
+  - [Why SQL dumps are slow for large databases](#why-sql-dumps-are-slow-for-large-databases)
+  - [Restore behavior of SQL dumps](#restore-behavior-of-sql-dumps)
+  - [When I prefer SQL dumps](#when-i-prefer-sql-dumps)
+  - [Common misunderstanding](#common-misunderstanding)
+  - [Final mental model](#final-mental-model)
+  - [One-line explanation (interview ready)](#one-line-explanation-interview-ready)
+
+
+<br>
+<br>
 
 ## In simple words
 
-A SQL dump is a logical backup where PostgreSQL writes **SQL commands** that can rebuild the database later.
+- A SQL dump is a logical backup where PostgreSQL writes **SQL commands** that can rebuild the database later.
 
-Think of it as instructions to recreate:
+<br>
 
-* database structure
-* data
-* permissions
+- Think of it as instructions to recreate:
+  * database structure
+  * data
+  * permissions
 
-When I restore a SQL dump, PostgreSQL simply **replays those instructions**.
+> When I restore a SQL dump, PostgreSQL simply **replays those instructions**.
 
 ---
+
+<br>
+<br>
 
 ## Why SQL dumps exist
 
-SQL dumps solve portability and flexibility problems.
+- SQL dumps solve portability and flexibility problems.
 
-They are designed for:
+<br>
 
-* database migrations
-* PostgreSQL version upgrades
-* moving data across servers
-* partial restores (tables or schemas)
+- They are designed for:
+  * database migrations
+  * PostgreSQL version upgrades
+  * moving data across servers
+  * partial restores (tables or schemas)
 
-They are not the fastest, but they are the most flexible.
-
----
-
-## Tool used: pg_dump
-
-`pg_dump` is the standard tool used to create SQL dumps.
-
-Important truth:
-
-> pg_dump is just a normal PostgreSQL client.
-
-It connects to the database like any other application and follows all role permissions.
+> They are not the fastest, but they are the most flexible.
 
 ---
 
-## What pg_dump actually reads
+<br>
+<br>
 
-pg_dump reads the database **logically**, not physically.
+## Tool used: `pg_dump`
 
-It reads:
+- `pg_dump` is the standard tool used to create SQL dumps.
 
-* schemas
-* tables
-* indexes
-* sequences
-* views
-* functions
-* data
+<br>
 
-It does not copy disk files. It reads data through SQL queries.
+- **Important truth:**
+  -  `pg_dump` is just a normal PostgreSQL client.
+  - It connects to the database like any other application and follows all role permissions.
 
 ---
 
-## How pg_dump works internally (step-by-step)
+<br>
+<br>
 
-1. pg_dump connects to the database
-2. PostgreSQL creates a transaction snapshot
-3. pg_dump reads metadata (tables, schemas, objects)
-4. pg_dump reads table data row by row
+## What `pg_dump` actually reads
+
+- `pg_dump` reads the database **logically**, not physically.
+
+<br>
+
+- It reads:
+  * schemas
+  * tables
+  * indexes
+  * sequences
+  * views
+  * functions
+  * data
+
+- It does not copy disk files. It reads data through SQL queries.
+
+---
+
+<br>
+<br>
+
+## How `pg_dump` works internally (step-by-step)
+
+1. `pg_dump` connects to the database
+2. PGSQL creates a transaction snapshot
+3. `pg_dump` reads metadata (tables, schemas, objects)
+4. `pg_dump` reads table data row by row
 5. SQL commands are written to the dump file
 
-The snapshot guarantees consistency across all objects.
+> The snapshot guarantees consistency across all objects.
 
 ---
 
-## Why pg_dump does not block users
+<br>
+<br>
 
-pg_dump uses a snapshot-based read.
+## Why `pg_dump` does not block users
 
-This means:
+- `pg_dump` uses a snapshot-based read.
 
-* no exclusive locks
-* no write blocking
-* normal queries continue
+<br>
 
-Users can keep inserting and updating data while the dump runs.
+- This means:
+  * no exclusive locks
+  * no write blocking
+  * normal queries continue
+
+> Users can keep inserting and updating data while the dump runs.
 
 ---
+
+<br>
+<br>
 
 ## What consistency means in a SQL dump
 
-All tables in the dump represent the **same point in time**.
+- All tables in the dump represent the **same point in time**.
 
-Data committed after the dump starts is ignored.
-Uncommitted data is never included.
+<br>
 
-This prevents broken foreign keys or partial data.
+- Data committed after the dump starts is ignored.
+- Uncommitted data is never included.
+
+<br>
+
+- This prevents broken foreign keys or partial data.
 
 ---
+
+<br>
+<br>
 
 ## What a SQL dump contains
 
-A SQL dump usually includes:
+- A SQL dump usually includes:
+  * CREATE DATABASE (optional)
+  * CREATE TABLE statements
+  * CREATE INDEX statements
+  * INSERT data
+  * GRANT and ownership statements
 
-* CREATE DATABASE (optional)
-* CREATE TABLE statements
-* CREATE INDEX statements
-* INSERT data
-* GRANT and ownership statements
-
-It may also include comments and extensions if requested.
+- It may also include comments and extensions if requested.
 
 ---
+
+<br>
+<br>
 
 ## What a SQL dump does NOT contain
 
-SQL dumps do not include:
+- SQL dumps do not include:
+  * server configuration files
+  * running transactions
+  * OS-level settings
+  * WAL history
 
-* server configuration files
-* running transactions
-* OS-level settings
-* WAL history
-
-They only capture logical database objects.
+- They only capture logical database objects.
 
 ---
+
+<br>
+<br>
 
 ## Why SQL dumps are slow for large databases
 
-SQL dumps:
+- SQL dumps:
+  * write data as INSERT statements
+  * rebuild indexes during restore
+  * execute commands one by one
 
-* write data as INSERT statements
-* rebuild indexes during restore
-* execute commands one by one
-
-This makes them slower for very large databases compared to physical backups.
+- This makes them slower for very large databases compared to physical backups.
 
 ---
+
+<br>
+<br>
 
 ## Restore behavior of SQL dumps
 
-Restore means:
+- Restore means:
+  * create a clean database
+  * run the SQL file using psql
+  * PostgreSQL executes commands sequentially
 
-* create a clean database
-* run the SQL file using psql
-* PostgreSQL executes commands sequentially
-
-Indexes are rebuilt, not copied.
-Statistics must be regenerated after restore.
+- Indexes are rebuilt, not copied.
+- Statistics must be regenerated after restore.
 
 ---
+<br>
+<br>
 
 ## When I prefer SQL dumps
 
-I use SQL dumps when:
+- I use SQL dumps when:
+  * upgrading PostgreSQL versions
+  * migrating between platforms
+  * restoring individual tables
+  * creating test or dev environments
 
-* upgrading PostgreSQL versions
-* migrating between platforms
-* restoring individual tables
-* creating test or dev environments
-
-They give control, not speed.
+- They give control, not speed.
 
 ---
+
+<br>
+<br>
 
 ## Common misunderstanding
 
-A SQL dump is not a snapshot of disk files.
+- A SQL dump is not a snapshot of disk files.
 
-It is a **logical reconstruction recipe**.
-That is why it works across versions and architectures.
+<br>
+
+- It is a **logical reconstruction recipe**.
+- That is why it works across versions and architectures.
 
 ---
+
+<br>
+<br>
 
 ## Final mental model
 
 * SQL dump = instructions
-* pg_dump = reader and writer
+* `pg_dump` = reader and writer
 * snapshot = consistency guarantee
 * restore = replay SQL
 

@@ -1,13 +1,35 @@
-# Common SQL Dump Mistakes and Failure Scenarios in PostgreSQL
+# 09 Common SQL Dump Mistakes and Failure Scenarios in PostgreSQL
+
+<br>
+<br>
+
+- [09 Common SQL Dump Mistakes and Failure Scenarios in PostgreSQL](#09-common-sql-dump-mistakes-and-failure-scenarios-in-postgresql)
+  - [In simple words](#in-simple-words)
+  - [Mistake 1: Assuming backup success means restore success](#mistake-1-assuming-backup-success-means-restore-success)
+  - [Mistake 2: Not checking permissions before `pg_dump`](#mistake-2-not-checking-permissions-before-pg_dump)
+  - [Mistake 3: Using plain SQL for very large databases](#mistake-3-using-plain-sql-for-very-large-databases)
+  - [Mistake 4: Forgetting roles and global objects](#mistake-4-forgetting-roles-and-global-objects)
+  - [Mistake 5: Restoring into a dirty database](#mistake-5-restoring-into-a-dirty-database)
+  - [Mistake 6: Ignoring restore errors](#mistake-6-ignoring-restore-errors)
+  - [Mistake 7: Skipping post-restore steps](#mistake-7-skipping-post-restore-steps)
+  - [Mistake 8: Backups stored on same server](#mistake-8-backups-stored-on-same-server)
+  - [Mistake 9: No monitoring of backup jobs](#mistake-9-no-monitoring-of-backup-jobs)
+  - [Mistake 10: Never testing restore under pressure](#mistake-10-never-testing-restore-under-pressure)
+  - [Final mental model](#final-mental-model)
+  - [One-line explanation](#one-line-explanation)
+
+<br>
+<br>
 
 ## In simple words
 
-Most backup failures are not tool problems.
-They are **human and process mistakes**.
-
-This file documents the mistakes DBAs actually make in real systems and how to avoid them.
+- Most backup failures are not tool problems.
+- They are **human and process mistakes**.
 
 ---
+
+<br>
+<br>
 
 ## Mistake 1: Assuming backup success means restore success
 
@@ -19,99 +41,134 @@ pg_dump mydb > backup.sql
 
 If the command finishes, they assume everything is fine.
 
-Reality:
+<br>
+
+**Reality:**
 
 * backup file may be incomplete
 * restore may fail due to roles, permissions, or dependencies
 
-Correct approach:
+**Correct approach:**
 
 > A backup is valid only after a successful restore test.
 
 ---
 
-## Mistake 2: Not checking permissions before pg_dump
+<br>
+<br>
 
-pg_dump fails if it cannot read **any single object**.
+## Mistake 2: Not checking permissions before `pg_dump`
 
-Common causes:
+`pg_dump` fails if it cannot read **any single object**.
+
+<br>
+
+**Common causes:**
 
 * missing access to one schema
 * view referencing inaccessible table
 * extension privilege issue
 
-Correct approach:
+<br>
 
-* run pg_dump as database owner or superuser
+**Correct approach:**
+
+* run `pg_dump` as database owner or superuser
 * verify permissions in advance
 
 ---
 
+<br>
+<br>
+
 ## Mistake 3: Using plain SQL for very large databases
 
-Plain format:
+**Plain format:**
 
 * generates huge files
 * restores slowly
 * cannot run in parallel
 
-Using it for multi-GB databases leads to:
+<br>
+
+**Using it for multi-GB databases leads to:**
 
 * long downtime
 * restore failures
 
-Correct approach:
+<br>
+
+**Correct approach:**
 
 * use custom or directory formats
 * enable parallel restore
 
 ---
 
+<br>
+<br>
+
 ## Mistake 4: Forgetting roles and global objects
 
-Database restore fails silently when:
+**Database restore fails silently when:**
 
 * roles are missing
 * ownership cannot be assigned
 
-Symptoms:
+<br>
+
+**Symptoms:**
 
 * restore completes with warnings
 * application fails later
 
-Correct approach:
+<br>
+
+**Correct approach:**
 
 * restore roles first
-* use pg_dumpall --globals-only
+* use `pg_dumpall --globals-only`
 
 ---
 
+<br>
+<br>
+
 ## Mistake 5: Restoring into a dirty database
 
-Restoring into a database that already contains objects leads to:
+**Restoring into a database that already contains objects leads to:**
 
 * object already exists errors
 * partial restore
 * inconsistent state
 
-Correct approach:
+<br>
+
+**Correct approach:**
 
 * always restore into a clean database
 * drop and recreate if unsure
 
 ---
 
+<br>
+<br>
+
 ## Mistake 6: Ignoring restore errors
 
 During restore, errors scroll quickly.
 
-Ignoring them results in:
+<br>
+
+**Ignoring them results in:**
 
 * missing tables
 * broken foreign keys
 * silent data loss
 
-Correct approach:
+<br>
+
+**Correct approach:**
 
 * stop on error
 * fix root cause
@@ -119,47 +176,64 @@ Correct approach:
 
 ---
 
+<br>
+<br>
+
 ## Mistake 7: Skipping post-restore steps
 
-After restore:
+**After restore:**
 
 * statistics are missing
 * sequences may be wrong
 
-Skipping ANALYZE causes:
+<br>
+
+**Skipping `ANALYZE` causes:**
 
 * slow queries
 * wrong plans
 
-Correct approach:
+<br>
 
-* always run ANALYZE
+**Correct approach:**
+
+* always run `ANALYZE`
 * verify sequences and counts
 
 ---
 
+<br>
+<br>
+
 ## Mistake 8: Backups stored on same server
 
-Storing backups on the same server means:
+**Storing backups on the same server means:**
 
 * disk failure = data + backup lost
 
-Correct approach:
+<br>
+
+**Correct approach:**
 
 * store backups off-host
 * use separate storage or remote systems
 
 ---
 
+<br>
+<br>
+
 ## Mistake 9: No monitoring of backup jobs
 
-Backups may:
+**Backups may:**
 
 * silently fail
 * stop due to disk full
 * hang for hours
 
-Correct approach:
+<br>
+
+**Correct approach:**
 
 * log backup output
 * monitor duration and size
@@ -167,20 +241,28 @@ Correct approach:
 
 ---
 
+<br>
+<br>
+
 ## Mistake 10: Never testing restore under pressure
 
-Real disaster recoveries fail because:
+**Real disaster recoveries fail because:**
 
 * restore steps were never practiced
 * documentation is missing
 * decisions are made in panic
 
-Correct approach:
+<br>
+
+**Correct approach:**
 
 * schedule restore drills
 * document recovery steps
 
 ---
+
+<br>
+<br>
 
 ## Final mental model
 
@@ -191,6 +273,9 @@ Correct approach:
 
 ---
 
-## One-line explanation (interview ready)
+<br>
+<br>
+
+## One-line explanation 
 
 Most SQL dump failures happen due to permission issues, wrong formats, missing roles, or untested restore processes rather than tool limitations.
