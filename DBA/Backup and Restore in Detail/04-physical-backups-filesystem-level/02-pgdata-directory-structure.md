@@ -1,47 +1,80 @@
-# PGDATA Directory Structure (What Actually Gets Backed Up)
+<center>
+
+# 02 PGDATA Directory Structure (What Actually Gets Backed Up)
+</center>
+
+<br>
+<br>
+
+- [02 PGDATA Directory Structure (What Actually Gets Backed Up)](#02-pgdata-directory-structure-what-actually-gets-backed-up)
+  - [In simple words](#in-simple-words)
+  - [What `PGDATA` represents](#what-pgdata-represents)
+  - [High-level layout of `PGDATA`](#high-level-layout-of-pgdata)
+  - [`base/` directory (user databases)](#base-directory-user-databases)
+  - [`global/` directory (cluster metadata)](#global-directory-cluster-metadata)
+  - [`pg_wal/` directory (write-ahead log)](#pg_wal-directory-write-ahead-log)
+  - [`pg_xact/` (transaction status)](#pg_xact-transaction-status)
+  - [`pg_multixact/`](#pg_multixact)
+  - [`pg_commit_ts/`](#pg_commit_ts)
+  - [`pg_tblspc/` (tablespaces)](#pg_tblspc-tablespaces)
+  - [Configuration files inside `PGDATA`](#configuration-files-inside-pgdata)
+  - [Files you should never touch](#files-you-should-never-touch)
+  - [Common DBA mistake](#common-dba-mistake)
+  - [Final mental model](#final-mental-model)
+  - [One-line explanation](#one-line-explanation)
+
+<br>
+<br>
 
 ## In simple words
 
-`$PGDATA` is the **heart of PostgreSQL**.
-
-Every physical backup is basically a copy of this directory.
-If you don’t understand what lives here, physical backups will always feel risky.
+- `$PGDATA` is the **heart of PostgreSQL**.
+- Every physical backup is basically a copy of this directory.
+- If you don’t understand what lives here, physical backups will always feel risky.
 
 ---
 
-## What PGDATA represents
+<br>
+<br>
 
-PGDATA is the directory where PostgreSQL stores:
+## What `PGDATA` represents
 
+**`PGDATA` is the directory where PostgreSQL stores:**
 * all databases
 * system catalogs
 * transaction metadata
 * WAL files (or links)
 
-When PostgreSQL starts, it reads PGDATA first.
+When PostgreSQL starts, it reads `PGDATA` first.
 
 ---
 
-## High-level layout of PGDATA
+<br>
+<br>
 
-Inside PGDATA, you will usually see:
+## High-level layout of `PGDATA`
 
-* base/
-* global/
-* pg_wal/
-* pg_multixact/
-* pg_xact/
-* pg_commit_ts/
-* pg_tblspc/
-* postgresql.conf
-* pg_hba.conf
-* pg_ident.conf
+**Inside `PGDATA`, you will usually see:**
+
+* `base/`
+* `global/`
+* `pg_wal/`
+* `pg_multixact/`
+* `pg_xact/`
+* `pg_commit_ts/`
+* `pg_tblspc/`
+* `postgresql.conf`
+* `pg_hba.conf`
+* `pg_ident.conf`
 
 Each directory has a very specific job.
 
 ---
 
-## base/ directory (user databases)
+<br>
+<br>
+
+## `base/` directory (user databases)
 
 This directory contains **actual table and index files**.
 
@@ -53,39 +86,48 @@ This is where most disk space is consumed.
 
 ---
 
-## global/ directory (cluster metadata)
+<br>
+<br>
 
-This stores cluster-wide information:
+## `global/` directory (cluster metadata)
+
+**This stores cluster-wide information:**
 
 * roles
 * databases list
 * shared system catalogs
 
-If global/ is missing or corrupted:
+**If `global/` is missing or corrupted:**
 
 * PostgreSQL will not start
 
 ---
 
-## pg_wal/ directory (write-ahead log)
+<br>
+<br>
+
+## `pg_wal/` directory (write-ahead log)
 
 This is the **most critical directory for recovery**.
 
-It stores WAL segments that:
+**It stores WAL segments that:**
 
 * record every data change
 * ensure crash safety
 * enable PITR
 
-If pg_wal fills up:
+**If `pg_wal` fills up:**
 
 * database can stop accepting writes
 
 ---
 
-## pg_xact/ (transaction status)
+<br>
+<br>
 
-Tracks:
+## `pg_xact/` (transaction status)
+
+**Tracks:**
 
 * committed transactions
 * aborted transactions
@@ -96,9 +138,12 @@ Missing or corrupted pg_xact leads to data inconsistency.
 
 ---
 
-## pg_multixact/
+<br>
+<br>
 
-Used when:
+## `pg_multixact/`
+
+**Used when:**
 
 * multiple transactions lock the same row
 
@@ -108,45 +153,55 @@ This directory must be included in physical backups.
 
 ---
 
-## pg_commit_ts/
+<br>
+<br>
 
-Stores commit timestamps (if enabled).
+## `pg_commit_ts/`
 
-Not always active, but must be backed up if present.
-
----
-
-## pg_tblspc/ (tablespaces)
-
-Contains symbolic links to tablespaces located outside PGDATA.
-
-Important rule:
-
-> Backing up PGDATA alone is NOT enough when tablespaces exist.
-
-Tablespace directories must be backed up separately.
+- Stores commit timestamps (if enabled).
+- Not always active, but must be backed up if present.
 
 ---
 
-## Configuration files inside PGDATA
+<br>
+<br>
 
-Usually includes:
+## `pg_tblspc/` (tablespaces)
 
-* postgresql.conf
-* pg_hba.conf
-* pg_ident.conf
+Contains symbolic links to tablespaces located outside `PGDATA`.
 
-Depending on setup, these may be outside PGDATA.
+**Important rule:**
+
+- Backing up `PGDATA` alone is NOT enough when tablespaces exist.
+- Tablespace directories must be backed up separately.
+
+---
+
+<br>
+<br>
+
+## Configuration files inside `PGDATA`
+
+**Usually includes:**
+
+* `postgresql.conf`
+* `pg_hba.conf`
+* `pg_ident.conf`
+
+Depending on setup, these may be outside `PGDATA`.
 
 Do not assume configs are always included in backups.
 
 ---
 
+<br>
+<br>
+
 ## Files you should never touch
 
-Never manually edit:
+**Never manually edit:**
 
-* files inside base/
+* files inside `base/`
 * WAL files
 * transaction metadata
 
@@ -154,28 +209,45 @@ PostgreSQL expects full control over these.
 
 ---
 
+<br>
+<br>
+
 ## Common DBA mistake
 
-Copying only base/ and ignoring:
+**Copying only `base/` and ignoring:**
 
-* global/
-* pg_wal/
-* pg_xact/
+* `global/`
+* `pg_wal/`
+* `pg_xact/`
 
 This leads to broken restores.
 
 ---
 
+<br>
+<br>
+
 ## Final mental model
 
-* PGDATA = database brain
-* base = user data
-* pg_wal = recovery engine
-* global = cluster identity
+* `PGDATA` = database brain
+* `base` = user data
+* `pg_wal` = recovery engine
+* `global` = cluster identity
 * tablespaces need extra care
 
 ---
 
-## One-line explanation (interview ready)
+<br>
+<br>
 
-PGDATA contains all PostgreSQL data files, WAL, and metadata required for physical backup and recovery.
+## One-line explanation 
+
+`PGDATA` contains all PostgreSQL data files, WAL, and metadata required for physical backup and recovery.
+
+
+
+<br>
+<br>
+<br>
+<br>
+

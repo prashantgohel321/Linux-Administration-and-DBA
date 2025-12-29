@@ -1,8 +1,35 @@
-# Offline Filesystem Backup – Step by Step (PostgreSQL)
+<center>
+
+# 03 Offline Filesystem Backup – Step by Step (PostgreSQL)
+</center>
+
+<br>
+<br>
+
+- [03 Offline Filesystem Backup – Step by Step (PostgreSQL)](#03-offline-filesystem-backup--step-by-step-postgresql)
+  - [In simple words](#in-simple-words)
+  - [Why offline backups still matter](#why-offline-backups-still-matter)
+  - [What makes offline backup safe](#what-makes-offline-backup-safe)
+  - [Step-by-step offline backup process](#step-by-step-offline-backup-process)
+    - [Step 1: Notify users and applications](#step-1-notify-users-and-applications)
+    - [Step 2: Stop PostgreSQL cleanly](#step-2-stop-postgresql-cleanly)
+    - [Step 3: Copy the data directory](#step-3-copy-the-data-directory)
+    - [Step 4: Verify backup completeness](#step-4-verify-backup-completeness)
+    - [Step 5: Start PostgreSQL again](#step-5-start-postgresql-again)
+  - [Restoring from an offline backup](#restoring-from-an-offline-backup)
+  - [Handling tablespaces](#handling-tablespaces)
+  - [Common mistakes during offline backup](#common-mistakes-during-offline-backup)
+  - [Pros and cons of offline backups](#pros-and-cons-of-offline-backups)
+  - [When I choose offline backup](#when-i-choose-offline-backup)
+  - [Final mental model](#final-mental-model)
+  - [One-line explanation](#one-line-explanation)
+
+<br>
+<br>
 
 ## In simple words
 
-An offline filesystem backup means:
+**An offline filesystem backup means:**
 
 * PostgreSQL is **completely stopped**
 * no users, no writes, no WAL activity
@@ -12,9 +39,12 @@ This is the **safest and simplest** form of physical backup.
 
 ---
 
+<br>
+<br>
+
 ## Why offline backups still matter
 
-Even though online backups exist, offline backups are still used when:
+**Even though online backups exist, offline backups are still used when:**
 
 * database is small or medium
 * maintenance window is available
@@ -25,9 +55,12 @@ With PostgreSQL stopped, there is zero consistency risk.
 
 ---
 
+<br>
+<br>
+
 ## What makes offline backup safe
 
-When PostgreSQL is stopped:
+**When PostgreSQL is stopped:**
 
 * no transactions are running
 * no dirty buffers exist
@@ -38,11 +71,14 @@ This removes the need for WAL replay during restore.
 
 ---
 
+<br>
+<br>
+
 ## Step-by-step offline backup process
 
 ### Step 1: Notify users and applications
 
-Before stopping PostgreSQL:
+**Before stopping PostgreSQL:**
 
 * inform application teams
 * stop background jobs
@@ -52,19 +88,22 @@ Never stop PostgreSQL blindly in production.
 
 ---
 
+<br>
+<br>
+
 ### Step 2: Stop PostgreSQL cleanly
 
 ```bash
 sudo systemctl stop postgresql
 ```
 
-Or:
+**Or:**
 
 ```bash
 pg_ctl stop -D $PGDATA
 ```
 
-Verify:
+**Verify:**
 
 ```bash
 ps aux | grep postgres
@@ -74,13 +113,16 @@ No postgres process should be running.
 
 ---
 
+<br>
+<br>
+
 ### Step 3: Copy the data directory
 
 ```bash
 cp -a $PGDATA /backup/pgdata_backup
 ```
 
-Important:
+**Important:**
 
 * use recursive copy
 * preserve ownership and permissions
@@ -90,9 +132,12 @@ If tablespaces exist, back them up separately.
 
 ---
 
+<br>
+<br>
+
 ### Step 4: Verify backup completeness
 
-Check:
+**Check:**
 
 * directory size
 * number of files
@@ -102,13 +147,16 @@ A half-copied backup is dangerous.
 
 ---
 
+<br>
+<br>
+
 ### Step 5: Start PostgreSQL again
 
 ```bash
 sudo systemctl start postgresql
 ```
 
-Verify:
+**Verify:**
 
 * database starts normally
 * applications reconnect
@@ -117,9 +165,12 @@ Downtime ends here.
 
 ---
 
+<br>
+<br>
+
 ## Restoring from an offline backup
 
-Restore process:
+**Restore process:**
 
 * stop PostgreSQL
 * replace PGDATA with backup copy
@@ -130,9 +181,12 @@ No WAL replay is needed.
 
 ---
 
+<br>
+<br>
+
 ## Handling tablespaces
 
-If tablespaces exist:
+**If tablespaces exist:**
 
 * copy tablespace directories separately
 * restore them to the same paths
@@ -141,6 +195,9 @@ If tablespaces exist:
 Missing tablespaces cause startup failure.
 
 ---
+
+<br>
+<br>
 
 ## Common mistakes during offline backup
 
@@ -153,24 +210,30 @@ Most failures are operational errors.
 
 ---
 
+<br>
+<br>
+
 ## Pros and cons of offline backups
 
-Pros:
+**Pros:**
 
 * simplest method
 * highest safety
 * easiest restore
 
-Cons:
+**Cons:**
 
 * requires downtime
 * not suitable for 24x7 systems
 
 ---
 
+<br>
+<br>
+
 ## When I choose offline backup
 
-I choose offline backup when:
+**I choose offline backup when:**
 
 * database is non-critical
 * downtime is acceptable
@@ -178,6 +241,9 @@ I choose offline backup when:
 * simplicity matters more than availability
 
 ---
+
+<br>
+<br>
 
 ## Final mental model
 
@@ -188,6 +254,17 @@ I choose offline backup when:
 
 ---
 
-## One-line explanation (interview ready)
+<br>
+<br>
+
+## One-line explanation
 
 An offline filesystem backup copies PostgreSQL data files after stopping the server, ensuring maximum consistency at the cost of downtime.
+
+
+<br>
+<br>
+<br>
+<br>
+
+
