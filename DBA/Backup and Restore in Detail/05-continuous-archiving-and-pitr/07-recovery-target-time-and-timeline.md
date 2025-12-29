@@ -1,37 +1,68 @@
-# Recovery Target Time and Timeline (Deep PITR Behavior)
+<center>
+
+# 07 Recovery Target Time and Timeline (Deep PITR Behavior)
+</center>
+
+<br>
+<br>
+
+- [07 Recovery Target Time and Timeline (Deep PITR Behavior)](#07-recovery-target-time-and-timeline-deep-pitr-behavior)
+  - [In simple words](#in-simple-words)
+  - [What is a recovery target](#what-is-a-recovery-target)
+  - [Types of recovery targets](#types-of-recovery-targets)
+    - [recovery\_target\_time](#recovery_target_time)
+    - [`recovery_target_xid`](#recovery_target_xid)
+    - [`recovery_target_name`](#recovery_target_name)
+  - [What happens during recovery replay](#what-happens-during-recovery-replay)
+  - [What is a timeline](#what-is-a-timeline)
+  - [Why timelines are necessary](#why-timelines-are-necessary)
+  - [Timeline files in WAL archive](#timeline-files-in-wal-archive)
+  - [Restoring multiple times (important behavior)](#restoring-multiple-times-important-behavior)
+  - [Common mistakes with recovery targets](#common-mistakes-with-recovery-targets)
+  - [DBA best practices](#dba-best-practices)
+  - [Final mental model](#final-mental-model)
+  - [One-line explanation](#one-line-explanation)
+
+
+<br>
+<br>
 
 ## In simple words
 
-During Point‑in‑Time Recovery (PITR), PostgreSQL needs two decisions:
+**During Point‑in‑Time Recovery (PITR), PostgreSQL needs two decisions:**
 
 1. **Where to stop recovery**
 2. **Which history (timeline) to follow**
 
 These are controlled by recovery targets and timelines.
+
 Understanding this avoids accidental data loss during repeated restores.
 
 ---
 
+<br>
+<br>
+
 ## What is a recovery target
 
-A recovery target tells PostgreSQL:
+**A recovery target tells PostgreSQL:**
+- “Stop replaying WAL at this exact point.”
 
-> “Stop replaying WAL at this exact point.”
-
-Without a recovery target:
-
+**Without a recovery target:**
 * PostgreSQL replays WAL until the latest available WAL
 * database recovers to the most recent state
 
-With a recovery target:
-
+**With a recovery target:**
 * recovery stops earlier, by choice
 
 ---
 
+<br>
+<br>
+
 ## Types of recovery targets
 
-PostgreSQL supports multiple recovery targets:
+**PostgreSQL supports multiple recovery targets:**
 
 ### recovery_target_time
 
@@ -45,7 +76,10 @@ Most commonly used option.
 
 ---
 
-### recovery_target_xid
+<br>
+<br>
+
+### `recovery_target_xid`
 
 Recover up to a specific transaction ID.
 
@@ -57,7 +91,10 @@ Used when the exact failing transaction is known.
 
 ---
 
-### recovery_target_name
+<br>
+<br>
+
+### `recovery_target_name`
 
 Recover to a named restore point.
 
@@ -73,18 +110,24 @@ Useful during planned risky operations.
 
 ---
 
+<br>
+<br>
+
 ## What happens during recovery replay
 
-During recovery:
-
+**During recovery:**
 * WAL is replayed sequentially
 * PostgreSQL checks each record
 * stops when the recovery target is reached
 
 Committed transactions before target are applied.
+
 Committed transactions after target are ignored.
 
 ---
+
+<br>
+<br>
 
 ## What is a timeline
 
@@ -92,19 +135,20 @@ A timeline represents a **history branch** of the database.
 
 Every PostgreSQL cluster starts on timeline 1.
 
-Whenever recovery completes:
-
+**Whenever recovery completes:**
 * PostgreSQL creates a new timeline
 * future WAL belongs to the new timeline
 
 ---
 
+<br>
+<br>
+
 ## Why timelines are necessary
 
 Timelines prevent accidental overwriting of history.
 
-Example:
-
+**Example:**
 * timeline 1 → original database
 * timeline 2 → recovered version
 
@@ -112,14 +156,15 @@ Both histories coexist safely.
 
 ---
 
+<br>
+<br>
+
 ## Timeline files in WAL archive
 
-Timeline information is stored in:
-
+**Timeline information is stored in:**
 * `.history` files
 
-PostgreSQL reads these to:
-
+**PostgreSQL reads these to:**
 * choose correct WAL path
 * avoid mixing histories
 
@@ -127,16 +172,21 @@ Missing history files cause recovery failure.
 
 ---
 
+<br>
+<br>
+
 ## Restoring multiple times (important behavior)
 
-If you restore again from the same base backup:
-
+**If you restore again from the same base backup:**
 * PostgreSQL creates another new timeline
 * old timeline remains unchanged
 
 This is expected behavior, not a bug.
 
 ---
+
+<br>
+<br>
 
 ## Common mistakes with recovery targets
 
@@ -149,14 +199,20 @@ Recovery stops permanently at the target.
 
 ---
 
+<br>
+<br>
+
 ## DBA best practices
 
 * always note incident time accurately
-* prefer recovery_target_time
+* prefer `recovery_target_time`
 * keep full WAL history
 * understand timeline branching
 
 ---
+
+<br>
+<br>
 
 ## Final mental model
 
@@ -167,6 +223,19 @@ Recovery stops permanently at the target.
 
 ---
 
-## One-line explanation (interview ready)
+<br>
+<br>
+
+## One-line explanation
 
 Recovery targets define where PITR stops, and timelines ensure PostgreSQL safely branches database history after recovery.
+
+
+
+<br>
+<br>
+<br>
+<br>
+
+
+
