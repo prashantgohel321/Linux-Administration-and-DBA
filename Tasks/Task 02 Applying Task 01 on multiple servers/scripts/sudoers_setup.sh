@@ -9,9 +9,23 @@ if [ -z "$ROLE" ]; then
 fi
 
 
+TSS_ADMIN_USER="tssadmin"
+
 if ! getent group admin >/dev/null; then
   groupadd admin
 fi
+
+if id "$TSS_ADMIN_USER" &>/dev/null; then
+        if id -nG "$TSS_ADMIN_USER" | grep -qw wheel; then
+                gpasswd -d "$TSS_ADMIN_USER" wheel
+        fi
+
+
+        if ! id -nG "$TSS_ADMIN_USER" | grep -qw admin; then
+                usermod -aG admin "$TSS_ADMIN_USER"
+        fi
+fi
+
 
 
 if [ ! -f /etc/sudoers.bkp ]; then
@@ -31,18 +45,18 @@ if [[ "$ROLE" = "lnx_devops"            ||
       "$ROLE" = "lnx_aiteam"            ||
       "$ROLE" = "lnx_nextaml" ]]; then
 
-cat << EOF > "$DENY_FILE"
-%${ROLE} ALL=(ALL:ALL) NOPASSWD: /usr/bin/su - tssadmin
-EOF
+  cat << EOF > "$DENY_FILE"
+  %${ROLE} ALL=(ALL:ALL) NOPASSWD: /usr/bin/su - tssadmin
+  EOF
 
-chmod 440 "$DENY_FILE"
-visudo -cf "$DENY_FILE"
-echo "[+] Applied: $ROLE sudo with deny list"
-exit 0
+  chmod 440 "$DENY_FILE"
+  visudo -cf "$DENY_FILE"
+  echo "[+] Applied: $ROLE sudo with deny list"
+  exit 0
 
 else
 
-echo "[!] ERROR: Unknown ROLE → $ROLE"
-exit 1
+  echo "[!] ERROR: Unknown ROLE → $ROLE"
+  exit 1
 
 fi
