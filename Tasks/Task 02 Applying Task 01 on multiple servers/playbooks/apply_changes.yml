@@ -1,5 +1,5 @@
 ---
-- name: Apply SSHD PAM and authselect (all servers)
+- name: Apply SSHD PAM and authselect
   hosts: "{{ group }}"
   become: yes
   tasks:
@@ -39,7 +39,7 @@
 
 
 
-- name: Apply sudoers on "{{ group }}" servers
+- name: Apply sudoers on "{{ group }}" server
   hosts:  "{{ group }}"
   become: yes
   tasks:
