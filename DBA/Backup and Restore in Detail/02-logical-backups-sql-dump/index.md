@@ -1,0 +1,12 @@
+# Index of ./DBA/Backup and Restore in Detail/02-logical-backups-sql-dump
+- [01-what-is-sql-dump-and-how-it-works-internally.md](01-what-is-sql-dump-and-how-it-works-internally.md)
+- [02 MAIN.md](02 MAIN.md)
+- [02-pg_dump-command-deep-dive.md](02-pg_dump-command-deep-dive.md)
+- [03-restore-using-psql-complete-flow.md](03-restore-using-psql-complete-flow.md)
+- [04-pg_restore-and-selective-restore.md](04-pg_restore-and-selective-restore.md)
+- [05-dump-formats-fp-fc-fd-ft.md](05-dump-formats-fp-fc-fd-ft.md)
+- [06-streaming-backup-between-servers.md](06-streaming-backup-between-servers.md)
+- [07-pg_dumpall-and-cluster-level-backup.md](07-pg_dumpall-and-cluster-level-backup.md)
+- [08-post-restore-tasks-analyze-vacuum.md](08-post-restore-tasks-analyze-vacuum.md)
+- [09-common-sql-dump-mistakes-and-failures.md](09-common-sql-dump-mistakes-and-failures.md)
+- [index.md](index.md)

@@ -1,0 +1,13 @@
+# Index of ./Tasks/Task 02 Applying Task 01 on multiple servers/Others
+- [PART_01.md](PART_01.md)
+- [PART_02.md](PART_02.md)
+- [README.md](README.md)
+- [Script_explanations.md](Script_explanations.md)
+- [apply_changes.yml](apply_changes.yml)
+- [copy_ssh_key.yml](copy_ssh_key.yml)
+- [index.md](index.md)
+- [join-ad.yml](join-ad.yml)
+- [join_ad.sh](join_ad.sh)
+- [revert_changes.yml](revert_changes.yml)
+- [sshd_pam_fix.sh](sshd_pam_fix.sh)
+- [sudoers_setup.sh](sudoers_setup.sh)

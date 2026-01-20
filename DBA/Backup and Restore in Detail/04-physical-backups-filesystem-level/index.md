@@ -1,0 +1,11 @@
+# Index of ./DBA/Backup and Restore in Detail/04-physical-backups-filesystem-level
+- [01-what-is-physical-backup.md](01-what-is-physical-backup.md)
+- [02-pgdata-directory-structure.md](02-pgdata-directory-structure.md)
+- [03-offline-filesystem-backup-step-by-step.md](03-offline-filesystem-backup-step-by-step.md)
+- [04 MAIN.md](04 MAIN.md)
+- [04-snapshot-based-backups.md](04-snapshot-based-backups.md)
+- [05-wal-requirement-and-consistency.md](05-wal-requirement-and-consistency.md)
+- [06-tablespaces-and-multi-filesystem-risk.md](06-tablespaces-and-multi-filesystem-risk.md)
+- [07-physical-backup-vs-logical-backup.md](07-physical-backup-vs-logical-backup.md)
+- [08-common-physical-backup-mistakes.md](08-common-physical-backup-mistakes.md)
+- [index.md](index.md)

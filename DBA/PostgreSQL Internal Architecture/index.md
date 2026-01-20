@@ -1,0 +1,10 @@
+# Index of ./DBA/PostgreSQL Internal Architecture
+- [01 Client To Backend Postgre Sql Connection Deep Dive.md](01 Client To Backend Postgre Sql Connection Deep Dive.md)
+- [02 Inside The Backend How A Sql Query Is Understood.md](02 Inside The Backend How A Sql Query Is Understood.md)
+- [03 Postgre Sql Memory Model How Memory Is Really Used.md](03 Postgre Sql Memory Model How Memory Is Really Used.md)
+- [04 – Wal And Background Processes How Postgre Sql Survives Crashes.md](04 – Wal And Background Processes How Postgre Sql Survives Crashes.md)
+- [05 – Disk And Storage What Postgre Sql Actually Stores And Why.md](05 – Disk And Storage What Postgre Sql Actually Stores And Why.md)
+- [06 Postgre Sql Logical And Physical Architecture Explained With One Flow Example.md](06 Postgre Sql Logical And Physical Architecture Explained With One Flow Example.md)
+- [PGSQL Internal Flow.md](PGSQL Internal Flow.md)
+- [diagrams](diagrams)
+- [index.md](index.md)

@@ -1,14 +1,9 @@
-# 📘 DevOps Study Material
-
-## 🐧 Linux
-- [Linux Notes](Linux%20Notes/)
-
-## 🗄️ DBA / PostgreSQL
-- [DBA Notes](DBA/)
-
-## 🧪 Tasks
-- [Hands-on Tasks](Tasks/)
-
-## 📄 Docs
-- [All Linux Commands](All_Linux_Commands.md)
-- [VM Setup](VM%20Setup.md)
+# Index of .
+- [All_Linux_Commands.md](All_Linux_Commands.md)
+- [DBA](DBA)
+- [Linux Notes](Linux Notes)
+- [README.md](README.md)
+- [Tasks](Tasks)
+- [VM Setup.md](VM Setup.md)
+- [_config.yml](_config.yml)
+- [index.md](index.md)

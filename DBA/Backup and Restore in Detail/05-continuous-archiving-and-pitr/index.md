@@ -1,0 +1,12 @@
+# Index of ./DBA/Backup and Restore in Detail/05-continuous-archiving-and-pitr
+- [01-why-wal-archiving-exists.md](01-why-wal-archiving-exists.md)
+- [02-wal-level-archive-mode-archive-command.md](02-wal-level-archive-mode-archive-command.md)
+- [03-base-backup-using-pg_basebackup.md](03-base-backup-using-pg_basebackup.md)
+- [04-wal-archiving-flow-and-internals.md](04-wal-archiving-flow-and-internals.md)
+- [05 MAIN.md](05 MAIN.md)
+- [05-point-in-time-recovery-pitr.md](05-point-in-time-recovery-pitr.md)
+- [06-recovery-signal-and-restore-command.md](06-recovery-signal-and-restore-command.md)
+- [07-recovery-target-time-and-timeline.md](07-recovery-target-time-and-timeline.md)
+- [08-pitr-real-life-disaster-scenario.md](08-pitr-real-life-disaster-scenario.md)
+- [09-common-pitr-failures-and-debugging.md](09-common-pitr-failures-and-debugging.md)
+- [index.md](index.md)
